@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Rubens Jose Rosa, Marcos dos Santos, Thiago Marques" />
+
+<meta name="date" content="2021-01-22" />
+
+<title>criticalpath - R Package Implementation of Critical Path Method</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">criticalpath - R Package Implementation of Critical Path Method</h1>
+<h4 class="author">Rubens Jose Rosa, Marcos dos Santos, Thiago Marques</h4>
+<h4 class="date">2021-01-22</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#critical-path-method">Critical Path Method</a></li>
+</ul></li>
+<li><a href="#how-to-create-a-schedule">How to create a schedule</a><ul>
+<li><a href="#add-activities-to-a-schedule">Add activities to a schedule</a></li>
+<li><a href="#add-relations-to-a-schedule">Add relations to a schedule</a></li>
+<li><a href="#add-activities-and-relations-together-to-an-schedule">Add activities and relations together to an schedule</a></li>
+<li><a href="#create-a-schedule-object-from-data-frames">Create a schedule object from data frames</a></li>
+</ul></li>
+<li><a href="#how-to-get-schedule-information">How to get schedule information</a><ul>
+<li><a href="#title-reference-and-schedule-duration">Title, Reference and Schedule Duration</a></li>
+</ul></li>
+<li><a href="#how-to-get-activities-properties">How to get activities properties</a><ul>
+<li><a href="#activity-properties">Activity Properties</a></li>
+<li><a href="#gantt-matrix">Gantt Matrix</a></li>
+</ul></li>
+<li><a href="#how-to-change-activities-duration">How to change activities duration</a><ul>
+<li><a href="#change-activities-duration">Change Activities Duration</a></li>
+</ul></li>
+<li><a href="#how-to-get-relations-properties">How to get relations properties</a><ul>
+<li><a href="#relation-properties">Relation Properties</a></li>
+<li><a href="#successors-and-predecessors">Successors and Predecessors</a></li>
+</ul></li>
+<li><a href="#how-to-get-topological-properties">How to get topological properties</a><ul>
+<li><a href="#topological-indicators">Topological Indicators</a></li>
+</ul></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(criticalpath)</span></code></pre></div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<div id="critical-path-method" class="section level2">
+<h2>Critical Path Method</h2>
+<p>criticalpath package is an object oriented implementation of the Critical Path Method (CPM) in R with R6 library. CPM is a method used to estimate the minimum project duration and determine the amount of scheduling flexibility on the logical network paths within the schedule model. The flexibility is in terms of early start, early finish, late start, late finish, total float and free float. Beside, it permits to quantify the complexity of network diagram through the analysis of topological indicators. Finally, it permits to change the activities duration to perform what-if scenario analysis.</p>
+<p>With this package, you can calculate the following CPM parameters:</p>
+<ul>
+<li>Schedule duration</li>
+<li>Early start and finish date of each activity</li>
+<li>Late start and finish date of each activity</li>
+<li>Critical activities</li>
+<li>Critical path</li>
+<li>Total float and free float</li>
+<li>Gantt Matrix</li>
+<li>What-if scenario analysis</li>
+<li>Topological indicators</li>
+</ul>
+<p>The aim of this package is to apply critical path method, for the researcher to make experiments with CPM parameters.</p>
+</div>
+</div>
+<div id="how-to-create-a-schedule" class="section level1">
+<h1>How to create a schedule</h1>
+<p>You have the following alternatives to create a schedule:</p>
+<ol style="list-style-type: decimal">
+<li>Create an empty schedule and add activities to i.</li>
+<li>Create an empty schedule, add activities and relations to it.</li>
+<li>Create an empty schedule and add activities at the same time that add relations to it.</li>
+<li>Create an schedule from activities data frame and relations data frame.</li>
+</ol>
+<p>Lets discuss each one.</p>
+<div id="add-activities-to-a-schedule" class="section level2">
+<h2>Add activities to a schedule</h2>
+<ul>
+<li><p><code>Schedule$add_activity(id, name, duration)</code> : adds an activity to a schedule.</p></li>
+<li><p><code>Schedule$add_activities(activities)</code> : adds an activities data frame to a schedule.</p></li>
+</ul>
+<p>Usage:</p>
+<ul>
+<li>Schedule$add_activity(id, name, duration)</li>
+<li>Schedule$add_activities(activities)</li>
+</ul>
+<p>Parameters:</p>
+<ul>
+<li><code>id</code> Activity id, an integer number that must be unique within a schedule. It will be used to make relation between activities.</li>
+<li><code>name</code> The name of activity. The default is an empty string.</li>
+<li><code>duration</code> A number that represents the activity’s duration. It is integer number without time unit. It must be equal or grater than zero. The default value is zero.</li>
+<li><code>activities</code> Data frame with activities. If it is not informed, the schedule will be created without any activity. Its structure is defined in [schedule_from_data_frame]</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Activities added one by one</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb2-3"><a href="#cb2-3"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">1</span>, <span class="st">&quot;Task 1&quot;</span>, <span class="dv">5</span>)</span>
+<span id="cb2-4"><a href="#cb2-4"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">2</span>, <span class="st">&quot;Task 2&quot;</span>, <span class="dv">6</span>)</span>
+<span id="cb2-5"><a href="#cb2-5"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">3</span>, <span class="st">&quot;Task 3&quot;</span>, <span class="dv">8</span>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">4</span>, <span class="st">&quot;Task 4&quot;</span>, <span class="dv">6</span>)</span>
+<span id="cb2-7"><a href="#cb2-7"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">5</span>, <span class="st">&quot;Task 5&quot;</span>, <span class="dv">9</span>)</span>
+<span id="cb2-8"><a href="#cb2-8"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">6</span>, <span class="st">&quot;Task 6&quot;</span>, <span class="dv">3</span>)</span>
+<span id="cb2-9"><a href="#cb2-9"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">7</span>, <span class="st">&quot;Task 7&quot;</span>, <span class="dv">4</span>)</span>
+<span id="cb2-10"><a href="#cb2-10"></a>schedule<span class="op">$</span>duration</span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="co">#&gt; [1] 9</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a>schedule<span class="op">$</span>activities</span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="co">#&gt;   id   name duration milestone critical ES EF LS LF total_float free_float</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="co">#&gt; 1  1 Task 1        5     FALSE    FALSE  0  5  4  9           4          4</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="co">#&gt; 2  2 Task 2        6     FALSE    FALSE  0  6  3  9           3          3</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="co">#&gt; 3  3 Task 3        8     FALSE    FALSE  0  8  1  9           1          1</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="co">#&gt; 4  4 Task 4        6     FALSE    FALSE  0  6  3  9           3          3</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a><span class="co">#&gt; 5  5 Task 5        9     FALSE     TRUE  0  9  0  9           0          0</span></span>
+<span id="cb2-19"><a href="#cb2-19"></a><span class="co">#&gt; 6  6 Task 6        3     FALSE    FALSE  0  3  6  9           6          6</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="co">#&gt; 7  7 Task 7        4     FALSE    FALSE  0  4  5  9           5          5</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="co">#&gt;   progr_level regr_level topo_float</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a><span class="co">#&gt; 1           1          1          0</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="co">#&gt; 2           1          1          0</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a><span class="co">#&gt; 3           1          1          0</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a><span class="co">#&gt; 4           1          1          0</span></span>
+<span id="cb2-26"><a href="#cb2-26"></a><span class="co">#&gt; 5           1          1          0</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a><span class="co">#&gt; 6           1          1          0</span></span>
+<span id="cb2-28"><a href="#cb2-28"></a><span class="co">#&gt; 7           1          1          0</span></span>
+<span id="cb2-29"><a href="#cb2-29"></a></span>
+<span id="cb2-30"><a href="#cb2-30"></a><span class="co"># Activities add once for all</span></span>
+<span id="cb2-31"><a href="#cb2-31"></a>activities &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb2-32"><a href="#cb2-32"></a>  <span class="dt">id        =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">17</span>,</span>
+<span id="cb2-33"><a href="#cb2-33"></a>  <span class="dt">name      =</span> <span class="kw">paste</span>(<span class="st">&quot;a&quot;</span>, <span class="kw">as.character</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">17</span>), <span class="dt">sep=</span><span class="st">&quot;&quot;</span>),</span>
+<span id="cb2-34"><a href="#cb2-34"></a>  <span class="dt">duration  =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">3</span>,<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">1</span>)</span>
+<span id="cb2-35"><a href="#cb2-35"></a>)</span>
+<span id="cb2-36"><a href="#cb2-36"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb2-37"><a href="#cb2-37"></a>schedule<span class="op">$</span><span class="kw">add_activities</span>(activities)</span>
+<span id="cb2-38"><a href="#cb2-38"></a>schedule<span class="op">$</span>duration</span>
+<span id="cb2-39"><a href="#cb2-39"></a><span class="co">#&gt; [1] 4</span></span>
+<span id="cb2-40"><a href="#cb2-40"></a>schedule<span class="op">$</span>activities</span>
+<span id="cb2-41"><a href="#cb2-41"></a><span class="co">#&gt;    id name duration milestone critical ES EF LS LF total_float free_float</span></span>
+<span id="cb2-42"><a href="#cb2-42"></a><span class="co">#&gt; 1   1   a1        1     FALSE    FALSE  0  1  3  4           3          3</span></span>
+<span id="cb2-43"><a href="#cb2-43"></a><span class="co">#&gt; 2   2   a2        2     FALSE    FALSE  0  2  2  4           2          2</span></span>
+<span id="cb2-44"><a href="#cb2-44"></a><span class="co">#&gt; 3   3   a3        2     FALSE    FALSE  0  2  2  4           2          2</span></span>
+<span id="cb2-45"><a href="#cb2-45"></a><span class="co">#&gt; 4   4   a4        4     FALSE     TRUE  0  4  0  4           0          0</span></span>
+<span id="cb2-46"><a href="#cb2-46"></a><span class="co">#&gt; 5   5   a5        3     FALSE    FALSE  0  3  1  4           1          1</span></span>
+<span id="cb2-47"><a href="#cb2-47"></a><span class="co">#&gt; 6   6   a6        3     FALSE    FALSE  0  3  1  4           1          1</span></span>
+<span id="cb2-48"><a href="#cb2-48"></a><span class="co">#&gt; 7   7   a7        3     FALSE    FALSE  0  3  1  4           1          1</span></span>
+<span id="cb2-49"><a href="#cb2-49"></a><span class="co">#&gt; 8   8   a8        2     FALSE    FALSE  0  2  2  4           2          2</span></span>
+<span id="cb2-50"><a href="#cb2-50"></a><span class="co">#&gt; 9   9   a9        1     FALSE    FALSE  0  1  3  4           3          3</span></span>
+<span id="cb2-51"><a href="#cb2-51"></a><span class="co">#&gt; 10 10  a10        1     FALSE    FALSE  0  1  3  4           3          3</span></span>
+<span id="cb2-52"><a href="#cb2-52"></a><span class="co">#&gt; 11 11  a11        2     FALSE    FALSE  0  2  2  4           2          2</span></span>
+<span id="cb2-53"><a href="#cb2-53"></a><span class="co">#&gt; 12 12  a12        1     FALSE    FALSE  0  1  3  4           3          3</span></span>
+<span id="cb2-54"><a href="#cb2-54"></a><span class="co">#&gt; 13 13  a13        1     FALSE    FALSE  0  1  3  4           3          3</span></span>
+<span id="cb2-55"><a href="#cb2-55"></a><span class="co">#&gt; 14 14  a14        1     FALSE    FALSE  0  1  3  4           3          3</span></span>
+<span id="cb2-56"><a href="#cb2-56"></a><span class="co">#&gt; 15 15  a15        1     FALSE    FALSE  0  1  3  4           3          3</span></span>
+<span id="cb2-57"><a href="#cb2-57"></a><span class="co">#&gt; 16 16  a16        2     FALSE    FALSE  0  2  2  4           2          2</span></span>
+<span id="cb2-58"><a href="#cb2-58"></a><span class="co">#&gt; 17 17  a17        1     FALSE    FALSE  0  1  3  4           3          3</span></span>
+<span id="cb2-59"><a href="#cb2-59"></a><span class="co">#&gt;    progr_level regr_level topo_float</span></span>
+<span id="cb2-60"><a href="#cb2-60"></a><span class="co">#&gt; 1            1          1          0</span></span>
+<span id="cb2-61"><a href="#cb2-61"></a><span class="co">#&gt; 2            1          1          0</span></span>
+<span id="cb2-62"><a href="#cb2-62"></a><span class="co">#&gt; 3            1          1          0</span></span>
+<span id="cb2-63"><a href="#cb2-63"></a><span class="co">#&gt; 4            1          1          0</span></span>
+<span id="cb2-64"><a href="#cb2-64"></a><span class="co">#&gt; 5            1          1          0</span></span>
+<span id="cb2-65"><a href="#cb2-65"></a><span class="co">#&gt; 6            1          1          0</span></span>
+<span id="cb2-66"><a href="#cb2-66"></a><span class="co">#&gt; 7            1          1          0</span></span>
+<span id="cb2-67"><a href="#cb2-67"></a><span class="co">#&gt; 8            1          1          0</span></span>
+<span id="cb2-68"><a href="#cb2-68"></a><span class="co">#&gt; 9            1          1          0</span></span>
+<span id="cb2-69"><a href="#cb2-69"></a><span class="co">#&gt; 10           1          1          0</span></span>
+<span id="cb2-70"><a href="#cb2-70"></a><span class="co">#&gt; 11           1          1          0</span></span>
+<span id="cb2-71"><a href="#cb2-71"></a><span class="co">#&gt; 12           1          1          0</span></span>
+<span id="cb2-72"><a href="#cb2-72"></a><span class="co">#&gt; 13           1          1          0</span></span>
+<span id="cb2-73"><a href="#cb2-73"></a><span class="co">#&gt; 14           1          1          0</span></span>
+<span id="cb2-74"><a href="#cb2-74"></a><span class="co">#&gt; 15           1          1          0</span></span>
+<span id="cb2-75"><a href="#cb2-75"></a><span class="co">#&gt; 16           1          1          0</span></span>
+<span id="cb2-76"><a href="#cb2-76"></a><span class="co">#&gt; 17           1          1          0</span></span></code></pre></div>
+</div>
+<div id="add-relations-to-a-schedule" class="section level2">
+<h2>Add relations to a schedule</h2>
+<ul>
+<li><p>Schedule$add_relation(from, to, type=“FS”, lag=0) : adds a relation to a schedule.</p></li>
+<li><p>Schedule$add_relations(relations) : adds a relations data frame to a schedule.</p></li>
+</ul>
+<p>Usage</p>
+<ul>
+<li>Schedule$add_relation(from, to, type=“FS”, lag=0)</li>
+<li>Schedule$add_relations(relations)</li>
+</ul>
+<p>Parameters:</p>
+<ul>
+<li><p><code>from</code> The id of predecessor activity. Must exist a activity with from id.</p></li>
+<li><p><code>to</code> The id of successor activity. Must exist a activity with to.</p></li>
+<li><p><code>type</code> Specifies the type of relation between activities. The default type is FS and its value may be: FS, FF, SS, SF, that means:</p>
+<ul>
+<li><p><strong>FS:</strong> Finish-Start relation. Activity ‘to’ id can only start after the finish of activity ‘from’ id.</p></li>
+<li><p><strong>FF:</strong> Finish-Finish relation. Activity ‘to’ id must finish together with activity ‘from’ id.</p></li>
+<li><p><strong>SS:</strong> Start-Start relation. Activity ‘to’ id must start together with activity ‘from’ id.</p></li>
+<li><p><strong>SF:</strong> Start-Finish relation. Activity ‘to’ id must finish when activity ‘from’ id starts.</p></li>
+</ul></li>
+<li><p><code>lag</code> The time period between activities that the successor activity ‘to’ must be advanced after activity ‘from’ has been finished. The value may be negative, in such case, the activity ‘to’ will be anticipated ‘lag’ time periods. It must be an integer, less than, equal or greater than zero. If lag is not informed, it is assumed to be zero.</p></li>
+<li><p><code>relations</code> Data frame with precedence relations between activities. It is formed by predecessor activity e successor activity. Its structure is defined in [schedule_from_data_frame].</p></li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># First, create an empty schedule</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb3-3"><a href="#cb3-3"></a>schedule<span class="op">$</span>title &lt;-<span class="st"> &quot;Project 3: Old Carriage House Renovation&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>schedule<span class="op">$</span>reference &lt;-</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="st">  &quot;VANHOUCKE, Mario. Integrated project management and control:</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="st">  first comes the theory, then the practice. Gent: Springer, 2014, p. 11&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co"># Second, add activities to it</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">1</span>, <span class="st">&quot;a1&quot;</span> , <span class="dv">2</span>)</span>
+<span id="cb3-10"><a href="#cb3-10"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">2</span>, <span class="st">&quot;a2&quot;</span> , <span class="dv">2</span>)</span>
+<span id="cb3-11"><a href="#cb3-11"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">3</span>, <span class="st">&quot;a3&quot;</span> , <span class="dv">4</span>)</span>
+<span id="cb3-12"><a href="#cb3-12"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">4</span>, <span class="st">&quot;a4&quot;</span> , <span class="dv">3</span>)</span>
+<span id="cb3-13"><a href="#cb3-13"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">5</span>, <span class="st">&quot;a5&quot;</span> , <span class="dv">4</span>)</span>
+<span id="cb3-14"><a href="#cb3-14"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">6</span>, <span class="st">&quot;a6&quot;</span> , <span class="dv">1</span>)</span>
+<span id="cb3-15"><a href="#cb3-15"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">7</span>, <span class="st">&quot;a7&quot;</span> , <span class="dv">1</span>)</span>
+<span id="cb3-16"><a href="#cb3-16"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">8</span>, <span class="st">&quot;a8&quot;</span> , <span class="dv">1</span>)</span>
+<span id="cb3-17"><a href="#cb3-17"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">9</span>, <span class="st">&quot;a9&quot;</span> , <span class="dv">1</span>)</span>
+<span id="cb3-18"><a href="#cb3-18"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">10</span>, <span class="st">&quot;a10&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb3-19"><a href="#cb3-19"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">11</span>, <span class="st">&quot;a11&quot;</span>, <span class="dv">3</span>)</span>
+<span id="cb3-20"><a href="#cb3-20"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">12</span>, <span class="st">&quot;a12&quot;</span>, <span class="dv">2</span>)</span>
+<span id="cb3-21"><a href="#cb3-21"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">13</span>, <span class="st">&quot;a13&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb3-22"><a href="#cb3-22"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">14</span>, <span class="st">&quot;a14&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb3-23"><a href="#cb3-23"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">15</span>, <span class="st">&quot;a15&quot;</span>, <span class="dv">2</span>)</span>
+<span id="cb3-24"><a href="#cb3-24"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">16</span>, <span class="st">&quot;a16&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb3-25"><a href="#cb3-25"></a>schedule<span class="op">$</span><span class="kw">add_activity</span>(<span class="dv">17</span>, <span class="st">&quot;a17&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb3-26"><a href="#cb3-26"></a></span>
+<span id="cb3-27"><a href="#cb3-27"></a><span class="co"># Finaly, add relations to it</span></span>
+<span id="cb3-28"><a href="#cb3-28"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb3-29"><a href="#cb3-29"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb3-30"><a href="#cb3-30"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb3-31"><a href="#cb3-31"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">4</span>, <span class="dv">5</span>)</span>
+<span id="cb3-32"><a href="#cb3-32"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">5</span>, <span class="dv">6</span>)</span>
+<span id="cb3-33"><a href="#cb3-33"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">6</span>, <span class="dv">7</span>)</span>
+<span id="cb3-34"><a href="#cb3-34"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">6</span>, <span class="dv">8</span>)</span>
+<span id="cb3-35"><a href="#cb3-35"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">6</span>, <span class="dv">9</span>)</span>
+<span id="cb3-36"><a href="#cb3-36"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">7</span>, <span class="dv">10</span>)</span>
+<span id="cb3-37"><a href="#cb3-37"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">8</span>, <span class="dv">10</span>)</span>
+<span id="cb3-38"><a href="#cb3-38"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">9</span>, <span class="dv">10</span>)</span>
+<span id="cb3-39"><a href="#cb3-39"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">10</span>, <span class="dv">11</span>)</span>
+<span id="cb3-40"><a href="#cb3-40"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">10</span>, <span class="dv">13</span>)</span>
+<span id="cb3-41"><a href="#cb3-41"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">11</span>, <span class="dv">12</span>)</span>
+<span id="cb3-42"><a href="#cb3-42"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">12</span>, <span class="dv">15</span>)</span>
+<span id="cb3-43"><a href="#cb3-43"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">13</span>, <span class="dv">14</span>)</span>
+<span id="cb3-44"><a href="#cb3-44"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">14</span>, <span class="dv">15</span>)</span>
+<span id="cb3-45"><a href="#cb3-45"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">15</span>, <span class="dv">16</span>)</span>
+<span id="cb3-46"><a href="#cb3-46"></a>schedule<span class="op">$</span><span class="kw">add_relation</span>( <span class="dv">16</span>, <span class="dv">17</span>)</span>
+<span id="cb3-47"><a href="#cb3-47"></a>schedule<span class="op">$</span>duration</span>
+<span id="cb3-48"><a href="#cb3-48"></a><span class="co">#&gt; [1] 27</span></span>
+<span id="cb3-49"><a href="#cb3-49"></a>schedule<span class="op">$</span>activities</span>
+<span id="cb3-50"><a href="#cb3-50"></a><span class="co">#&gt;    id name duration milestone critical ES EF LS LF total_float free_float</span></span>
+<span id="cb3-51"><a href="#cb3-51"></a><span class="co">#&gt; 1   1   a1        2     FALSE     TRUE  0  2  0  2           0          0</span></span>
+<span id="cb3-52"><a href="#cb3-52"></a><span class="co">#&gt; 2   2   a2        2     FALSE     TRUE  2  4  2  4           0          0</span></span>
+<span id="cb3-53"><a href="#cb3-53"></a><span class="co">#&gt; 3   3   a3        4     FALSE     TRUE  4  8  4  8           0          0</span></span>
+<span id="cb3-54"><a href="#cb3-54"></a><span class="co">#&gt; 4   4   a4        3     FALSE     TRUE  8 11  8 11           0          0</span></span>
+<span id="cb3-55"><a href="#cb3-55"></a><span class="co">#&gt; 5   5   a5        4     FALSE     TRUE 11 15 11 15           0          0</span></span>
+<span id="cb3-56"><a href="#cb3-56"></a><span class="co">#&gt; 6   6   a6        1     FALSE     TRUE 15 16 15 16           0          0</span></span>
+<span id="cb3-57"><a href="#cb3-57"></a><span class="co">#&gt; 7   7   a7        1     FALSE     TRUE 16 17 16 17           0          0</span></span>
+<span id="cb3-58"><a href="#cb3-58"></a><span class="co">#&gt; 8   8   a8        1     FALSE     TRUE 16 17 16 17           0          0</span></span>
+<span id="cb3-59"><a href="#cb3-59"></a><span class="co">#&gt; 9   9   a9        1     FALSE     TRUE 16 17 16 17           0          0</span></span>
+<span id="cb3-60"><a href="#cb3-60"></a><span class="co">#&gt; 10 10  a10        1     FALSE     TRUE 17 18 17 18           0          0</span></span>
+<span id="cb3-61"><a href="#cb3-61"></a><span class="co">#&gt; 11 11  a11        3     FALSE     TRUE 18 21 18 21           0          0</span></span>
+<span id="cb3-62"><a href="#cb3-62"></a><span class="co">#&gt; 12 12  a12        2     FALSE     TRUE 21 23 21 23           0          0</span></span>
+<span id="cb3-63"><a href="#cb3-63"></a><span class="co">#&gt; 13 13  a13        1     FALSE    FALSE 18 19 21 22           3          0</span></span>
+<span id="cb3-64"><a href="#cb3-64"></a><span class="co">#&gt; 14 14  a14        1     FALSE    FALSE 19 20 22 23           3          3</span></span>
+<span id="cb3-65"><a href="#cb3-65"></a><span class="co">#&gt; 15 15  a15        2     FALSE     TRUE 23 25 23 25           0          0</span></span>
+<span id="cb3-66"><a href="#cb3-66"></a><span class="co">#&gt; 16 16  a16        1     FALSE     TRUE 25 26 25 26           0          0</span></span>
+<span id="cb3-67"><a href="#cb3-67"></a><span class="co">#&gt; 17 17  a17        1     FALSE     TRUE 26 27 26 27           0          0</span></span>
+<span id="cb3-68"><a href="#cb3-68"></a><span class="co">#&gt;    progr_level regr_level topo_float</span></span>
+<span id="cb3-69"><a href="#cb3-69"></a><span class="co">#&gt; 1            1          1          0</span></span>
+<span id="cb3-70"><a href="#cb3-70"></a><span class="co">#&gt; 2            2          2          0</span></span>
+<span id="cb3-71"><a href="#cb3-71"></a><span class="co">#&gt; 3            3          3          0</span></span>
+<span id="cb3-72"><a href="#cb3-72"></a><span class="co">#&gt; 4            4          4          0</span></span>
+<span id="cb3-73"><a href="#cb3-73"></a><span class="co">#&gt; 5            5          5          0</span></span>
+<span id="cb3-74"><a href="#cb3-74"></a><span class="co">#&gt; 6            6          6          0</span></span>
+<span id="cb3-75"><a href="#cb3-75"></a><span class="co">#&gt; 7            7          7          0</span></span>
+<span id="cb3-76"><a href="#cb3-76"></a><span class="co">#&gt; 8            7          7          0</span></span>
+<span id="cb3-77"><a href="#cb3-77"></a><span class="co">#&gt; 9            7          7          0</span></span>
+<span id="cb3-78"><a href="#cb3-78"></a><span class="co">#&gt; 10           8          8          0</span></span>
+<span id="cb3-79"><a href="#cb3-79"></a><span class="co">#&gt; 11           9          9          0</span></span>
+<span id="cb3-80"><a href="#cb3-80"></a><span class="co">#&gt; 12          10         10          0</span></span>
+<span id="cb3-81"><a href="#cb3-81"></a><span class="co">#&gt; 13           9          9          0</span></span>
+<span id="cb3-82"><a href="#cb3-82"></a><span class="co">#&gt; 14          10         10          0</span></span>
+<span id="cb3-83"><a href="#cb3-83"></a><span class="co">#&gt; 15          11         11          0</span></span>
+<span id="cb3-84"><a href="#cb3-84"></a><span class="co">#&gt; 16          12         12          0</span></span>
+<span id="cb3-85"><a href="#cb3-85"></a><span class="co">#&gt; 17          13         13          0</span></span>
+<span id="cb3-86"><a href="#cb3-86"></a>schedule<span class="op">$</span>relations</span>
+<span id="cb3-87"><a href="#cb3-87"></a><span class="co">#&gt;    from to type lag critical ord i_from i_to</span></span>
+<span id="cb3-88"><a href="#cb3-88"></a><span class="co">#&gt; 1     1  2   FS   0     TRUE   1      1    2</span></span>
+<span id="cb3-89"><a href="#cb3-89"></a><span class="co">#&gt; 2     2  3   FS   0     TRUE   2      2    3</span></span>
+<span id="cb3-90"><a href="#cb3-90"></a><span class="co">#&gt; 3     3  4   FS   0     TRUE   3      3    4</span></span>
+<span id="cb3-91"><a href="#cb3-91"></a><span class="co">#&gt; 4     4  5   FS   0     TRUE   4      4    5</span></span>
+<span id="cb3-92"><a href="#cb3-92"></a><span class="co">#&gt; 5     5  6   FS   0     TRUE   5      5    6</span></span>
+<span id="cb3-93"><a href="#cb3-93"></a><span class="co">#&gt; 6     6  7   FS   0     TRUE   6      6    7</span></span>
+<span id="cb3-94"><a href="#cb3-94"></a><span class="co">#&gt; 7     6  8   FS   0     TRUE   7      6    8</span></span>
+<span id="cb3-95"><a href="#cb3-95"></a><span class="co">#&gt; 8     6  9   FS   0     TRUE   8      6    9</span></span>
+<span id="cb3-96"><a href="#cb3-96"></a><span class="co">#&gt; 9     7 10   FS   0     TRUE   9      7   10</span></span>
+<span id="cb3-97"><a href="#cb3-97"></a><span class="co">#&gt; 10    8 10   FS   0     TRUE  10      8   10</span></span>
+<span id="cb3-98"><a href="#cb3-98"></a><span class="co">#&gt; 11    9 10   FS   0     TRUE  11      9   10</span></span>
+<span id="cb3-99"><a href="#cb3-99"></a><span class="co">#&gt; 12   10 11   FS   0     TRUE  12     10   11</span></span>
+<span id="cb3-100"><a href="#cb3-100"></a><span class="co">#&gt; 13   10 13   FS   0    FALSE  13     10   13</span></span>
+<span id="cb3-101"><a href="#cb3-101"></a><span class="co">#&gt; 14   11 12   FS   0     TRUE  14     11   12</span></span>
+<span id="cb3-102"><a href="#cb3-102"></a><span class="co">#&gt; 15   13 14   FS   0    FALSE  16     13   14</span></span>
+<span id="cb3-103"><a href="#cb3-103"></a><span class="co">#&gt; 16   12 15   FS   0     TRUE  15     12   15</span></span>
+<span id="cb3-104"><a href="#cb3-104"></a><span class="co">#&gt; 17   14 15   FS   0    FALSE  17     14   15</span></span>
+<span id="cb3-105"><a href="#cb3-105"></a><span class="co">#&gt; 18   15 16   FS   0     TRUE  18     15   16</span></span>
+<span id="cb3-106"><a href="#cb3-106"></a><span class="co">#&gt; 19   16 17   FS   0     TRUE  19     16   17</span></span></code></pre></div>
+</div>
+<div id="add-activities-and-relations-together-to-an-schedule" class="section level2">
+<h2>Add activities and relations together to an schedule</h2>
+<p>Add an activity to a schedule in the same time that adds relations.</p>
+<p>Usage</p>
+<ul>
+<li>Schedule$add_act_rel(id, name, duration, relations_id=c(), direction=“succ”)</li>
+</ul>
+<p>Parameters:</p>
+<ul>
+<li><code>id</code> Activity id, an integer number that must be unique within a schedule. It will be used to make relation between activities.</li>
+<li><code>name</code> The name of activity.</li>
+<li><code>duration</code> A number that represents the activity’s duration. It must be equal or grater than zero.</li>
+<li><code>relations_id</code> A vector of ids such that will be linked with activity. It may be a relations of successor or predecessors.</li>
+<li><code>direction</code> Direction of relations_id: It may be “succ” or “pred”.
+<ul>
+<li><strong>succ:</strong> the relations_id vector will be the successor of the activity.</li>
+<li><strong>pred:</strong> the relations_id vector will be the predecessor of the activity.</li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Create a schedule</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb4-3"><a href="#cb4-3"></a>schedule<span class="op">$</span>title &lt;-<span class="st"> &quot;Fictitious Project Example&quot;</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>schedule<span class="op">$</span>reference &lt;-<span class="st"> &quot;VANHOUCKE, Mario. Measuring time:</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="st">  improving project performance using earned value management.</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="st">  Gent: Springer, 2009, p. 18&quot;</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="co"># Add activities and relations to it.</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">1</span>, <span class="st">&quot;a1&quot;</span> , <span class="dv">0</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>))</span>
+<span id="cb4-10"><a href="#cb4-10"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">2</span>, <span class="st">&quot;a2&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">5</span>))</span>
+<span id="cb4-11"><a href="#cb4-11"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">3</span>, <span class="st">&quot;a3&quot;</span> , <span class="dv">9</span>, <span class="kw">c</span>(<span class="dv">10</span>))</span>
+<span id="cb4-12"><a href="#cb4-12"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">4</span>, <span class="st">&quot;a4&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">6</span>))</span>
+<span id="cb4-13"><a href="#cb4-13"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">5</span>, <span class="st">&quot;a5&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">9</span>))</span>
+<span id="cb4-14"><a href="#cb4-14"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">6</span>, <span class="st">&quot;a6&quot;</span> , <span class="dv">5</span>, <span class="kw">c</span>(<span class="dv">7</span>))</span>
+<span id="cb4-15"><a href="#cb4-15"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">7</span>, <span class="st">&quot;a7&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">8</span>,<span class="dv">11</span>))</span>
+<span id="cb4-16"><a href="#cb4-16"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">8</span>, <span class="st">&quot;a8&quot;</span> , <span class="dv">7</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb4-17"><a href="#cb4-17"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">9</span>, <span class="st">&quot;a9&quot;</span> , <span class="dv">8</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb4-18"><a href="#cb4-18"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">10</span>, <span class="st">&quot;a10&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb4-19"><a href="#cb4-19"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">11</span>, <span class="st">&quot;a11&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb4-20"><a href="#cb4-20"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">12</span>, <span class="st">&quot;a12&quot;</span>, <span class="dv">0</span>)</span>
+<span id="cb4-21"><a href="#cb4-21"></a>schedule<span class="op">$</span>duration</span>
+<span id="cb4-22"><a href="#cb4-22"></a><span class="co">#&gt; [1] 16</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a>schedule<span class="op">$</span>activities</span>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="co">#&gt;    id name duration milestone critical ES EF LS LF total_float free_float</span></span>
+<span id="cb4-25"><a href="#cb4-25"></a><span class="co">#&gt; 1   1   a1        0      TRUE     TRUE  0  0  0  0           0          0</span></span>
+<span id="cb4-26"><a href="#cb4-26"></a><span class="co">#&gt; 2   2   a2        4     FALSE     TRUE  0  4  0  4           0          0</span></span>
+<span id="cb4-27"><a href="#cb4-27"></a><span class="co">#&gt; 3   3   a3        9     FALSE    FALSE  0  9  4 13           4          0</span></span>
+<span id="cb4-28"><a href="#cb4-28"></a><span class="co">#&gt; 4   4   a4        1     FALSE    FALSE  0  1  2  3           2          0</span></span>
+<span id="cb4-29"><a href="#cb4-29"></a><span class="co">#&gt; 5   5   a5        4     FALSE     TRUE  4  8  4  8           0          0</span></span>
+<span id="cb4-30"><a href="#cb4-30"></a><span class="co">#&gt; 6   6   a6        5     FALSE    FALSE  1  6  3  8           2          0</span></span>
+<span id="cb4-31"><a href="#cb4-31"></a><span class="co">#&gt; 7   7   a7        1     FALSE    FALSE  6  7  8  9           2          0</span></span>
+<span id="cb4-32"><a href="#cb4-32"></a><span class="co">#&gt; 8   8   a8        7     FALSE    FALSE  7 14  9 16           2          2</span></span>
+<span id="cb4-33"><a href="#cb4-33"></a><span class="co">#&gt; 9   9   a9        8     FALSE     TRUE  8 16  8 16           0          0</span></span>
+<span id="cb4-34"><a href="#cb4-34"></a><span class="co">#&gt; 10 10  a10        3     FALSE    FALSE  9 12 13 16           4          4</span></span>
+<span id="cb4-35"><a href="#cb4-35"></a><span class="co">#&gt; 11 11  a11        3     FALSE    FALSE  7 10 13 16           6          6</span></span>
+<span id="cb4-36"><a href="#cb4-36"></a><span class="co">#&gt; 12 12  a12        0      TRUE     TRUE 16 16 16 16           0          0</span></span>
+<span id="cb4-37"><a href="#cb4-37"></a><span class="co">#&gt;    progr_level regr_level topo_float</span></span>
+<span id="cb4-38"><a href="#cb4-38"></a><span class="co">#&gt; 1            1          1          0</span></span>
+<span id="cb4-39"><a href="#cb4-39"></a><span class="co">#&gt; 2            2          3          1</span></span>
+<span id="cb4-40"><a href="#cb4-40"></a><span class="co">#&gt; 3            2          4          2</span></span>
+<span id="cb4-41"><a href="#cb4-41"></a><span class="co">#&gt; 4            2          2          0</span></span>
+<span id="cb4-42"><a href="#cb4-42"></a><span class="co">#&gt; 5            3          4          1</span></span>
+<span id="cb4-43"><a href="#cb4-43"></a><span class="co">#&gt; 6            3          3          0</span></span>
+<span id="cb4-44"><a href="#cb4-44"></a><span class="co">#&gt; 7            4          4          0</span></span>
+<span id="cb4-45"><a href="#cb4-45"></a><span class="co">#&gt; 8            5          5          0</span></span>
+<span id="cb4-46"><a href="#cb4-46"></a><span class="co">#&gt; 9            4          5          1</span></span>
+<span id="cb4-47"><a href="#cb4-47"></a><span class="co">#&gt; 10           3          5          2</span></span>
+<span id="cb4-48"><a href="#cb4-48"></a><span class="co">#&gt; 11           5          5          0</span></span>
+<span id="cb4-49"><a href="#cb4-49"></a><span class="co">#&gt; 12           6          6          0</span></span>
+<span id="cb4-50"><a href="#cb4-50"></a>schedule<span class="op">$</span>relations</span>
+<span id="cb4-51"><a href="#cb4-51"></a><span class="co">#&gt;    from to type lag critical ord i_from i_to</span></span>
+<span id="cb4-52"><a href="#cb4-52"></a><span class="co">#&gt; 1     1  2   FS   0     TRUE   1      1    2</span></span>
+<span id="cb4-53"><a href="#cb4-53"></a><span class="co">#&gt; 2     1  3   FS   0    FALSE   2      1    3</span></span>
+<span id="cb4-54"><a href="#cb4-54"></a><span class="co">#&gt; 3     1  4   FS   0    FALSE   3      1    4</span></span>
+<span id="cb4-55"><a href="#cb4-55"></a><span class="co">#&gt; 4     2  5   FS   0     TRUE   4      2    5</span></span>
+<span id="cb4-56"><a href="#cb4-56"></a><span class="co">#&gt; 5     3 10   FS   0    FALSE   9      3   10</span></span>
+<span id="cb4-57"><a href="#cb4-57"></a><span class="co">#&gt; 6     4  6   FS   0    FALSE   5      4    6</span></span>
+<span id="cb4-58"><a href="#cb4-58"></a><span class="co">#&gt; 7     5  9   FS   0     TRUE   8      5    9</span></span>
+<span id="cb4-59"><a href="#cb4-59"></a><span class="co">#&gt; 8    10 12   FS   0    FALSE  13     10   12</span></span>
+<span id="cb4-60"><a href="#cb4-60"></a><span class="co">#&gt; 9     6  7   FS   0    FALSE   6      6    7</span></span>
+<span id="cb4-61"><a href="#cb4-61"></a><span class="co">#&gt; 10    9 12   FS   0     TRUE  12      9   12</span></span>
+<span id="cb4-62"><a href="#cb4-62"></a><span class="co">#&gt; 11    7  8   FS   0    FALSE   7      7    8</span></span>
+<span id="cb4-63"><a href="#cb4-63"></a><span class="co">#&gt; 12    7 11   FS   0    FALSE  10      7   11</span></span>
+<span id="cb4-64"><a href="#cb4-64"></a><span class="co">#&gt; 13    8 12   FS   0    FALSE  11      8   12</span></span>
+<span id="cb4-65"><a href="#cb4-65"></a><span class="co">#&gt; 14   11 12   FS   0    FALSE  14     11   12</span></span></code></pre></div>
+</div>
+<div id="create-a-schedule-object-from-data-frames" class="section level2">
+<h2>Create a schedule object from data frames</h2>
+<p>Make a schedule with activities and relations between activities. The method <code>Schedule$new(activities, relations)</code> creates an schedule object from two data frames, one containing activities lists and the other the precedence relations between activities. After creation, it is applied the Critical Path Method (CPM).</p>
+<p>It is possible to create a empty schedule, without any activity or relation with the constructor <code>Schedule$new()</code>. After that, it is possible to add activity with <code>add_activity</code> and relation with <code>add_relation</code> methods.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>activities</code> Data frame with activities. If it is not informed, the schedule will be created without any activity. Its structure is:
+<ul>
+<li><strong>id:</strong> Activity id, an integer number that must be unique within a schedule. It will be used to make relation between activities.</li>
+<li><strong>name:</strong> The name of activity. The default is an empty string.</li>
+<li><strong>duration:</strong> A number that represents the activity’s duration. It is integer number without time unit. It must be equal or grater than zero. The default value is zero.</li>
+</ul></li>
+<li><code>relations</code> Data frame with precedence relations between activities. If it is informed, the activities has to be informed too. If is is not informed, the schedule will be created without any relation. It is formed by predecessor activity e successor activity. Its structure is:
+<ul>
+<li><strong>from:</strong> The id of predecessor activity. Must exist a activity with from id.</li>
+<li><strong>to:</strong> The id of successor activity. Must exist a activity with to id.</li>
+<li><strong>type:</strong> Specifies the type of relation between activities. The default type is FS and its value may be: FS, FF, SS, SF, that means:
+<ul>
+<li><strong>FS:</strong> Finish-Start relation. Activity ‘to’ id can only start after the finish of activity ‘from’ id.</li>
+<li><strong>FF:</strong> Finish-Finish relation. Activity ‘to’ id must finish together with activity ‘from’ id.</li>
+<li><strong>SS:</strong> Start-Start relation. Activity ‘to’ id must start together with activity ‘from’ id.</li>
+<li><strong>SF:</strong> Start-Finish relation. Activity ‘to’ id must finish when activity ‘from’ id starts.</li>
+</ul></li>
+<li><strong>lag:</strong> The time period between activities that the successor activity ‘to’ must be advanced after activity ‘from’ has been finished. The value may be negative, in such case, the activity ‘to’ will be anticipated ‘lag’ time periods. It must be an integer, less than, equal or greater than zero. If it is not informed, it will be zero.</li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="co"># An empty schedule.</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb5-4"><a href="#cb5-4"></a>schedule<span class="op">$</span>duration</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="co">#&gt; [1] 0</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>schedule<span class="op">$</span>activities</span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#&gt;  [1] id          name        duration    milestone   critical    ES         </span></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="co">#&gt;  [7] EF          LS          LF          total_float free_float </span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>schedule<span class="op">$</span>relations</span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="co">#&gt; [1] from     to       type     lag      critical ord      i_from   i_to    </span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="co">#&gt; &lt;0 rows&gt; (or 0-length row.names)</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a></span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="co"># A schedule with activities and relations.</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a>activities &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb5-16"><a href="#cb5-16"></a>  <span class="dt">id        =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">17</span>,</span>
+<span id="cb5-17"><a href="#cb5-17"></a>  <span class="dt">name      =</span> <span class="kw">paste</span>(<span class="st">&quot;a&quot;</span>, <span class="kw">as.character</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">17</span>), <span class="dt">sep=</span><span class="st">&quot;&quot;</span>),</span>
+<span id="cb5-18"><a href="#cb5-18"></a>  <span class="dt">duration  =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">3</span>,<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">1</span>)</span>
+<span id="cb5-19"><a href="#cb5-19"></a>)</span>
+<span id="cb5-20"><a href="#cb5-20"></a></span>
+<span id="cb5-21"><a href="#cb5-21"></a>relations &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb5-22"><a href="#cb5-22"></a>  <span class="dt">from =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">3</span>,  <span class="dv">3</span>,  <span class="dv">4</span>,  <span class="dv">5</span>,  <span class="dv">6</span>,</span>
+<span id="cb5-23"><a href="#cb5-23"></a>           <span class="dv">7</span>,  <span class="dv">8</span>,  <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">14</span>, <span class="dv">15</span>, <span class="dv">15</span>),</span>
+<span id="cb5-24"><a href="#cb5-24"></a>  <span class="dt">to   =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">11</span>, <span class="dv">11</span>,</span>
+<span id="cb5-25"><a href="#cb5-25"></a>           <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">15</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">16</span>, <span class="dv">17</span>)</span>
+<span id="cb5-26"><a href="#cb5-26"></a>)</span>
+<span id="cb5-27"><a href="#cb5-27"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>(activities, relations)</span>
+<span id="cb5-28"><a href="#cb5-28"></a>schedule<span class="op">$</span>title &lt;-<span class="st"> &quot;Project 1: Cost Information System&quot;</span></span>
+<span id="cb5-29"><a href="#cb5-29"></a>schedule<span class="op">$</span>reference &lt;-<span class="st"> &quot;VANHOUCKE, Mario.</span></span>
+<span id="cb5-30"><a href="#cb5-30"></a><span class="st">Integrated project management and control:</span></span>
+<span id="cb5-31"><a href="#cb5-31"></a><span class="st">  first comes the theory, then the practice.</span></span>
+<span id="cb5-32"><a href="#cb5-32"></a><span class="st">  Gent: Springer, 2014, p. 6&quot;</span></span>
+<span id="cb5-33"><a href="#cb5-33"></a>schedule<span class="op">$</span>duration</span>
+<span id="cb5-34"><a href="#cb5-34"></a><span class="co">#&gt; [1] 11</span></span>
+<span id="cb5-35"><a href="#cb5-35"></a>schedule<span class="op">$</span>activities</span>
+<span id="cb5-36"><a href="#cb5-36"></a><span class="co">#&gt;    id name duration milestone critical ES EF LS LF total_float free_float</span></span>
+<span id="cb5-37"><a href="#cb5-37"></a><span class="co">#&gt; 1   1   a1        1     FALSE     TRUE  0  1  0  1           0          0</span></span>
+<span id="cb5-38"><a href="#cb5-38"></a><span class="co">#&gt; 2   2   a2        2     FALSE     TRUE  1  3  1  3           0          0</span></span>
+<span id="cb5-39"><a href="#cb5-39"></a><span class="co">#&gt; 3   3   a3        2     FALSE    FALSE  1  3  3  5           2          0</span></span>
+<span id="cb5-40"><a href="#cb5-40"></a><span class="co">#&gt; 4   4   a4        4     FALSE     TRUE  3  7  3  7           0          0</span></span>
+<span id="cb5-41"><a href="#cb5-41"></a><span class="co">#&gt; 5   5   a5        3     FALSE    FALSE  3  6  4  7           1          1</span></span>
+<span id="cb5-42"><a href="#cb5-42"></a><span class="co">#&gt; 6   6   a6        3     FALSE    FALSE  3  6  4  7           1          1</span></span>
+<span id="cb5-43"><a href="#cb5-43"></a><span class="co">#&gt; 7   7   a7        3     FALSE    FALSE  3  6  5  8           2          0</span></span>
+<span id="cb5-44"><a href="#cb5-44"></a><span class="co">#&gt; 8   8   a8        2     FALSE    FALSE  3  5  6  8           3          0</span></span>
+<span id="cb5-45"><a href="#cb5-45"></a><span class="co">#&gt; 9   9   a9        1     FALSE    FALSE  3  4  7  8           4          0</span></span>
+<span id="cb5-46"><a href="#cb5-46"></a><span class="co">#&gt; 10 10  a10        1     FALSE    FALSE  3  4  7  8           4          0</span></span>
+<span id="cb5-47"><a href="#cb5-47"></a><span class="co">#&gt; 11 11  a11        2     FALSE     TRUE  7  9  7  9           0          0</span></span>
+<span id="cb5-48"><a href="#cb5-48"></a><span class="co">#&gt; 12 12  a12        1     FALSE    FALSE  6  7  8  9           2          2</span></span>
+<span id="cb5-49"><a href="#cb5-49"></a><span class="co">#&gt; 13 13  a13        1     FALSE    FALSE  5  6  8  9           3          3</span></span>
+<span id="cb5-50"><a href="#cb5-50"></a><span class="co">#&gt; 14 14  a14        1     FALSE    FALSE  4  5  8  9           4          4</span></span>
+<span id="cb5-51"><a href="#cb5-51"></a><span class="co">#&gt; 15 15  a15        1     FALSE    FALSE  4  5  8  9           4          4</span></span>
+<span id="cb5-52"><a href="#cb5-52"></a><span class="co">#&gt; 16 16  a16        2     FALSE     TRUE  9 11  9 11           0          0</span></span>
+<span id="cb5-53"><a href="#cb5-53"></a><span class="co">#&gt; 17 17  a17        1     FALSE    FALSE  9 10 10 11           1          1</span></span>
+<span id="cb5-54"><a href="#cb5-54"></a><span class="co">#&gt;    progr_level regr_level topo_float</span></span>
+<span id="cb5-55"><a href="#cb5-55"></a><span class="co">#&gt; 1            1          1          0</span></span>
+<span id="cb5-56"><a href="#cb5-56"></a><span class="co">#&gt; 2            2          2          0</span></span>
+<span id="cb5-57"><a href="#cb5-57"></a><span class="co">#&gt; 3            2          2          0</span></span>
+<span id="cb5-58"><a href="#cb5-58"></a><span class="co">#&gt; 4            3          3          0</span></span>
+<span id="cb5-59"><a href="#cb5-59"></a><span class="co">#&gt; 5            3          3          0</span></span>
+<span id="cb5-60"><a href="#cb5-60"></a><span class="co">#&gt; 6            3          3          0</span></span>
+<span id="cb5-61"><a href="#cb5-61"></a><span class="co">#&gt; 7            3          3          0</span></span>
+<span id="cb5-62"><a href="#cb5-62"></a><span class="co">#&gt; 8            3          3          0</span></span>
+<span id="cb5-63"><a href="#cb5-63"></a><span class="co">#&gt; 9            3          3          0</span></span>
+<span id="cb5-64"><a href="#cb5-64"></a><span class="co">#&gt; 10           3          3          0</span></span>
+<span id="cb5-65"><a href="#cb5-65"></a><span class="co">#&gt; 11           4          4          0</span></span>
+<span id="cb5-66"><a href="#cb5-66"></a><span class="co">#&gt; 12           4          4          0</span></span>
+<span id="cb5-67"><a href="#cb5-67"></a><span class="co">#&gt; 13           4          4          0</span></span>
+<span id="cb5-68"><a href="#cb5-68"></a><span class="co">#&gt; 14           4          4          0</span></span>
+<span id="cb5-69"><a href="#cb5-69"></a><span class="co">#&gt; 15           4          4          0</span></span>
+<span id="cb5-70"><a href="#cb5-70"></a><span class="co">#&gt; 16           5          5          0</span></span>
+<span id="cb5-71"><a href="#cb5-71"></a><span class="co">#&gt; 17           5          5          0</span></span>
+<span id="cb5-72"><a href="#cb5-72"></a>schedule<span class="op">$</span>relations</span>
+<span id="cb5-73"><a href="#cb5-73"></a><span class="co">#&gt;    from to type lag critical ord i_from i_to</span></span>
+<span id="cb5-74"><a href="#cb5-74"></a><span class="co">#&gt; 1     1  2   FS   0     TRUE   1      1    2</span></span>
+<span id="cb5-75"><a href="#cb5-75"></a><span class="co">#&gt; 2     1  3   FS   0    FALSE   2      1    3</span></span>
+<span id="cb5-76"><a href="#cb5-76"></a><span class="co">#&gt; 3     2  4   FS   0     TRUE   3      2    4</span></span>
+<span id="cb5-77"><a href="#cb5-77"></a><span class="co">#&gt; 4     2  5   FS   0    FALSE   4      2    5</span></span>
+<span id="cb5-78"><a href="#cb5-78"></a><span class="co">#&gt; 5     2  6   FS   0    FALSE   5      2    6</span></span>
+<span id="cb5-79"><a href="#cb5-79"></a><span class="co">#&gt; 6     3  7   FS   0    FALSE   6      3    7</span></span>
+<span id="cb5-80"><a href="#cb5-80"></a><span class="co">#&gt; 7     3  8   FS   0    FALSE   7      3    8</span></span>
+<span id="cb5-81"><a href="#cb5-81"></a><span class="co">#&gt; 8     3  9   FS   0    FALSE   8      3    9</span></span>
+<span id="cb5-82"><a href="#cb5-82"></a><span class="co">#&gt; 9     3 10   FS   0    FALSE   9      3   10</span></span>
+<span id="cb5-83"><a href="#cb5-83"></a><span class="co">#&gt; 10    4 11   FS   0     TRUE  10      4   11</span></span>
+<span id="cb5-84"><a href="#cb5-84"></a><span class="co">#&gt; 11    5 11   FS   0    FALSE  11      5   11</span></span>
+<span id="cb5-85"><a href="#cb5-85"></a><span class="co">#&gt; 12    6 11   FS   0    FALSE  12      6   11</span></span>
+<span id="cb5-86"><a href="#cb5-86"></a><span class="co">#&gt; 13    7 12   FS   0    FALSE  13      7   12</span></span>
+<span id="cb5-87"><a href="#cb5-87"></a><span class="co">#&gt; 14    8 13   FS   0    FALSE  14      8   13</span></span>
+<span id="cb5-88"><a href="#cb5-88"></a><span class="co">#&gt; 15    9 14   FS   0    FALSE  15      9   14</span></span>
+<span id="cb5-89"><a href="#cb5-89"></a><span class="co">#&gt; 16   10 15   FS   0    FALSE  16     10   15</span></span>
+<span id="cb5-90"><a href="#cb5-90"></a><span class="co">#&gt; 17   11 16   FS   0     TRUE  17     11   16</span></span>
+<span id="cb5-91"><a href="#cb5-91"></a><span class="co">#&gt; 18   11 17   FS   0    FALSE  18     11   17</span></span>
+<span id="cb5-92"><a href="#cb5-92"></a><span class="co">#&gt; 19   12 16   FS   0    FALSE  19     12   16</span></span>
+<span id="cb5-93"><a href="#cb5-93"></a><span class="co">#&gt; 20   12 17   FS   0    FALSE  20     12   17</span></span>
+<span id="cb5-94"><a href="#cb5-94"></a><span class="co">#&gt; 21   13 16   FS   0    FALSE  21     13   16</span></span>
+<span id="cb5-95"><a href="#cb5-95"></a><span class="co">#&gt; 22   13 17   FS   0    FALSE  22     13   17</span></span>
+<span id="cb5-96"><a href="#cb5-96"></a><span class="co">#&gt; 23   14 16   FS   0    FALSE  23     14   16</span></span>
+<span id="cb5-97"><a href="#cb5-97"></a><span class="co">#&gt; 24   14 17   FS   0    FALSE  24     14   17</span></span>
+<span id="cb5-98"><a href="#cb5-98"></a><span class="co">#&gt; 25   15 16   FS   0    FALSE  25     15   16</span></span>
+<span id="cb5-99"><a href="#cb5-99"></a><span class="co">#&gt; 26   15 17   FS   0    FALSE  26     15   17</span></span></code></pre></div>
+</div>
+</div>
+<div id="how-to-get-schedule-information" class="section level1">
+<h1>How to get schedule information</h1>
+<div id="title-reference-and-schedule-duration" class="section level2">
+<h2>Title, Reference and Schedule Duration</h2>
+<p>After a schedule is created, it is possible access several type of information:</p>
+<ul>
+<li><p><strong>title:</strong> A project title for identification. It depends on user of the class. Its use are:</p>
+<ul>
+<li><code>Sechedule$title &lt;- &quot;A title&quot;</code> : sets a title for a project.</li>
+<li><code>Sechedule$title</code> : gets the title of the project.</li>
+</ul></li>
+<li><p><strong>reference:</strong> A reference from project origin, for example, a book, a paper, a corporation, or nothing.</p>
+<ul>
+<li><code>Sechedule$reference &lt;- &quot;A reference&quot;</code> : sets a reference for a project.</li>
+<li><code>Sechedule$title</code> : gets the reference of the project.</li>
+</ul></li>
+<li><p><strong>duration:</strong> An integer value that indicate the project duration calculated by CPM. Every time you include an activity or a relation to a schedule, the duration is calculated. You can only read the schedule duration.</p>
+<ul>
+<li><code>Sechedule$duration</code> : gets the duration of the project.</li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Create a schedule</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb6-3"><a href="#cb6-3"></a>schedule<span class="op">$</span>title &lt;-<span class="st"> &quot;Fictitious Project Example&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>schedule<span class="op">$</span>reference &lt;-<span class="st"> &quot;VANHOUCKE, Mario. Measuring time:</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="st">  improving project performance using earned value management.</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="st">  Gent: Springer, 2009, p. 18&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="co"># Add activities and relations to it.</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">1</span>, <span class="st">&quot;a1&quot;</span> , <span class="dv">0</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>))</span>
+<span id="cb6-10"><a href="#cb6-10"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">2</span>, <span class="st">&quot;a2&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">5</span>))</span>
+<span id="cb6-11"><a href="#cb6-11"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">3</span>, <span class="st">&quot;a3&quot;</span> , <span class="dv">9</span>, <span class="kw">c</span>(<span class="dv">10</span>))</span>
+<span id="cb6-12"><a href="#cb6-12"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">4</span>, <span class="st">&quot;a4&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">6</span>))</span>
+<span id="cb6-13"><a href="#cb6-13"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">5</span>, <span class="st">&quot;a5&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">9</span>))</span>
+<span id="cb6-14"><a href="#cb6-14"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">6</span>, <span class="st">&quot;a6&quot;</span> , <span class="dv">5</span>, <span class="kw">c</span>(<span class="dv">7</span>))</span>
+<span id="cb6-15"><a href="#cb6-15"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">7</span>, <span class="st">&quot;a7&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">8</span>,<span class="dv">11</span>))</span>
+<span id="cb6-16"><a href="#cb6-16"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">8</span>, <span class="st">&quot;a8&quot;</span> , <span class="dv">7</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb6-17"><a href="#cb6-17"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">9</span>, <span class="st">&quot;a9&quot;</span> , <span class="dv">8</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb6-18"><a href="#cb6-18"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">10</span>, <span class="st">&quot;a10&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb6-19"><a href="#cb6-19"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">11</span>, <span class="st">&quot;a11&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb6-20"><a href="#cb6-20"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">12</span>, <span class="st">&quot;a12&quot;</span>, <span class="dv">0</span>)</span>
+<span id="cb6-21"><a href="#cb6-21"></a>schedule<span class="op">$</span>title</span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="co">#&gt; [1] &quot;Fictitious Project Example&quot;</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a>schedule<span class="op">$</span>reference</span>
+<span id="cb6-24"><a href="#cb6-24"></a><span class="co">#&gt; [1] &quot;VANHOUCKE, Mario. Measuring time:\n  improving project performance using earned value management.\n  Gent: Springer, 2009, p. 18&quot;</span></span>
+<span id="cb6-25"><a href="#cb6-25"></a>schedule<span class="op">$</span>duration</span>
+<span id="cb6-26"><a href="#cb6-26"></a><span class="co">#&gt; [1] 16</span></span></code></pre></div>
+</div>
+</div>
+<div id="how-to-get-activities-properties" class="section level1">
+<h1>How to get activities properties</h1>
+<div id="activity-properties" class="section level2">
+<h2>Activity Properties</h2>
+<p>There several methods about activities that you can use to get information about them. After you add activities to a schedule, you may want to know how much activities has in a schedule or when each activity is planned to start or to finish. In this section, we will explain how you can find these information.</p>
+<ul>
+<li><strong>Has Any Activity:</strong> A logical value that indicate if the schedule has any activity. A TRUE value means that the schedule has some activity; a FALSE, means that the schedule is empty.
+<ul>
+<li>Usage: <code>Schedule$has_any_activity</code></li>
+</ul></li>
+<li><strong>Number of Activities:</strong> Number of activities in a schedule as an integer value.
+<ul>
+<li>Usage: <code>Schedule$nr_activities</code></li>
+</ul></li>
+<li><strong>Get activity:</strong> Gets an activity by id. It returns a data frame with one line about activity. The structure of a data is described in next topic.
+<ul>
+<li>Usage: <code>Schedule$get_activity(id)</code></li>
+</ul></li>
+<li><strong>Activities:</strong> Return a data frame with all activities of a schedule in a activity id order. This is the main information calculated by CPM. The data frame is formed by following structure:
+<ul>
+<li><p><strong>id:</strong> Activity id.</p></li>
+<li><p><strong>name:</strong> The name of activity.</p></li>
+<li><p><strong>duration:</strong> A number that represents the activity’s duration.</p></li>
+<li><p><strong>milestone:</strong> A milestone is an activity with zero duration. This property indicates if a activity is a milestone or not: <code>TRUE</code> indicates it is a milestone; <code>FALSE</code> indicates it is not.</p></li>
+<li><p><strong>critical:</strong> A critical activity is one with total float minor or equal to zero. This property indicates if a activity is critical: <code>TRUE</code> indicates it is critical; <code>FALSE</code> indicates it is not critical.</p></li>
+<li><p><strong>ES:</strong> Early Start: is the earliest start period an activity can begin after its predecessors without violating precedence relation.</p></li>
+<li><p><strong>EF:</strong> Early Finish: is the early start plus activity duration.</p></li>
+<li><p><strong>LS:</strong> Late Start: is the late finish minus activity duration.</p></li>
+<li><p><strong>LF:</strong> Late Finish: is the latest finish an activity can finish before their successors without violating precedence relation.</p></li>
+<li><p><strong>total_float:</strong> It is the amount of period an activity can be delayed without violating the project duration. Its formula is: LS - ES or LF - EF.</p></li>
+<li><p><strong>free_float:</strong> It is the amount of period an activity can be delayed without violating the start time of the successors activities.</p></li>
+<li><p><strong>progr_level:</strong> Progressive level is the rank of activities counted from begin. The level of the activities that don’t have predecessor is one; the level of the other activities, is one plus the maximal level of their predecessor.</p></li>
+<li><p><strong>regr_level:</strong> Regressive level is the rank of activities counted from the end. The level of the activities that don’t have successor is the maximal progressive level; the level of the other activities, is one minus the minimal level of their successor.</p></li>
+<li><p><strong>topo_float:</strong> It is the difference between progressive level and regressive level.</p></li>
+<li><p>Usage: <code>Schedule$activities</code></p></li>
+<li><p>Usage: <code>Schedule$get_activity(id)</code></p></li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Create a schedule</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb7-3"><a href="#cb7-3"></a>schedule<span class="op">$</span>title &lt;-<span class="st"> &quot;Fictitious Project Example&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>schedule<span class="op">$</span>reference &lt;-<span class="st"> &quot;VANHOUCKE, Mario. Measuring time:</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="st">  improving project performance using earned value management.</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="st">  Gent: Springer, 2009, p. 18&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a></span>
+<span id="cb7-8"><a href="#cb7-8"></a>schedule<span class="op">$</span>has_any_activity  <span class="co"># FALSE</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a><span class="co">#&gt; [1] FALSE</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>schedule<span class="op">$</span>nr_activities     <span class="co"># 0</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a><span class="co">#&gt; [1] 0</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a><span class="co"># Add activities and relations to it.</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">1</span>, <span class="st">&quot;a1&quot;</span> , <span class="dv">0</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>))</span>
+<span id="cb7-15"><a href="#cb7-15"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">2</span>, <span class="st">&quot;a2&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">5</span>))</span>
+<span id="cb7-16"><a href="#cb7-16"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">3</span>, <span class="st">&quot;a3&quot;</span> , <span class="dv">9</span>, <span class="kw">c</span>(<span class="dv">10</span>))</span>
+<span id="cb7-17"><a href="#cb7-17"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">4</span>, <span class="st">&quot;a4&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">6</span>))</span>
+<span id="cb7-18"><a href="#cb7-18"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">5</span>, <span class="st">&quot;a5&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">9</span>))</span>
+<span id="cb7-19"><a href="#cb7-19"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">6</span>, <span class="st">&quot;a6&quot;</span> , <span class="dv">5</span>, <span class="kw">c</span>(<span class="dv">7</span>))</span>
+<span id="cb7-20"><a href="#cb7-20"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">7</span>, <span class="st">&quot;a7&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">8</span>,<span class="dv">11</span>))</span>
+<span id="cb7-21"><a href="#cb7-21"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">8</span>, <span class="st">&quot;a8&quot;</span> , <span class="dv">7</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb7-22"><a href="#cb7-22"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">9</span>, <span class="st">&quot;a9&quot;</span> , <span class="dv">8</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb7-23"><a href="#cb7-23"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">10</span>, <span class="st">&quot;a10&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb7-24"><a href="#cb7-24"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">11</span>, <span class="st">&quot;a11&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb7-25"><a href="#cb7-25"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">12</span>, <span class="st">&quot;a12&quot;</span>, <span class="dv">0</span>)</span>
+<span id="cb7-26"><a href="#cb7-26"></a></span>
+<span id="cb7-27"><a href="#cb7-27"></a>schedule<span class="op">$</span>has_any_activity  <span class="co"># TRUE</span></span>
+<span id="cb7-28"><a href="#cb7-28"></a><span class="co">#&gt; [1] TRUE</span></span>
+<span id="cb7-29"><a href="#cb7-29"></a>schedule<span class="op">$</span>nr_activities     <span class="co"># 12</span></span>
+<span id="cb7-30"><a href="#cb7-30"></a><span class="co">#&gt; [1] 12</span></span>
+<span id="cb7-31"><a href="#cb7-31"></a></span>
+<span id="cb7-32"><a href="#cb7-32"></a>schedule<span class="op">$</span><span class="kw">get_activity</span>(<span class="dv">10</span>)</span>
+<span id="cb7-33"><a href="#cb7-33"></a><span class="co">#&gt;    id name duration milestone critical ES EF LS LF total_float free_float</span></span>
+<span id="cb7-34"><a href="#cb7-34"></a><span class="co">#&gt; 10 10  a10        3     FALSE    FALSE  9 12 13 16           4          4</span></span>
+<span id="cb7-35"><a href="#cb7-35"></a><span class="co">#&gt;    progr_level regr_level topo_float</span></span>
+<span id="cb7-36"><a href="#cb7-36"></a><span class="co">#&gt; 10           3          5          2</span></span>
+<span id="cb7-37"><a href="#cb7-37"></a>schedule<span class="op">$</span>activities</span>
+<span id="cb7-38"><a href="#cb7-38"></a><span class="co">#&gt;    id name duration milestone critical ES EF LS LF total_float free_float</span></span>
+<span id="cb7-39"><a href="#cb7-39"></a><span class="co">#&gt; 1   1   a1        0      TRUE     TRUE  0  0  0  0           0          0</span></span>
+<span id="cb7-40"><a href="#cb7-40"></a><span class="co">#&gt; 2   2   a2        4     FALSE     TRUE  0  4  0  4           0          0</span></span>
+<span id="cb7-41"><a href="#cb7-41"></a><span class="co">#&gt; 3   3   a3        9     FALSE    FALSE  0  9  4 13           4          0</span></span>
+<span id="cb7-42"><a href="#cb7-42"></a><span class="co">#&gt; 4   4   a4        1     FALSE    FALSE  0  1  2  3           2          0</span></span>
+<span id="cb7-43"><a href="#cb7-43"></a><span class="co">#&gt; 5   5   a5        4     FALSE     TRUE  4  8  4  8           0          0</span></span>
+<span id="cb7-44"><a href="#cb7-44"></a><span class="co">#&gt; 6   6   a6        5     FALSE    FALSE  1  6  3  8           2          0</span></span>
+<span id="cb7-45"><a href="#cb7-45"></a><span class="co">#&gt; 7   7   a7        1     FALSE    FALSE  6  7  8  9           2          0</span></span>
+<span id="cb7-46"><a href="#cb7-46"></a><span class="co">#&gt; 8   8   a8        7     FALSE    FALSE  7 14  9 16           2          2</span></span>
+<span id="cb7-47"><a href="#cb7-47"></a><span class="co">#&gt; 9   9   a9        8     FALSE     TRUE  8 16  8 16           0          0</span></span>
+<span id="cb7-48"><a href="#cb7-48"></a><span class="co">#&gt; 10 10  a10        3     FALSE    FALSE  9 12 13 16           4          4</span></span>
+<span id="cb7-49"><a href="#cb7-49"></a><span class="co">#&gt; 11 11  a11        3     FALSE    FALSE  7 10 13 16           6          6</span></span>
+<span id="cb7-50"><a href="#cb7-50"></a><span class="co">#&gt; 12 12  a12        0      TRUE     TRUE 16 16 16 16           0          0</span></span>
+<span id="cb7-51"><a href="#cb7-51"></a><span class="co">#&gt;    progr_level regr_level topo_float</span></span>
+<span id="cb7-52"><a href="#cb7-52"></a><span class="co">#&gt; 1            1          1          0</span></span>
+<span id="cb7-53"><a href="#cb7-53"></a><span class="co">#&gt; 2            2          3          1</span></span>
+<span id="cb7-54"><a href="#cb7-54"></a><span class="co">#&gt; 3            2          4          2</span></span>
+<span id="cb7-55"><a href="#cb7-55"></a><span class="co">#&gt; 4            2          2          0</span></span>
+<span id="cb7-56"><a href="#cb7-56"></a><span class="co">#&gt; 5            3          4          1</span></span>
+<span id="cb7-57"><a href="#cb7-57"></a><span class="co">#&gt; 6            3          3          0</span></span>
+<span id="cb7-58"><a href="#cb7-58"></a><span class="co">#&gt; 7            4          4          0</span></span>
+<span id="cb7-59"><a href="#cb7-59"></a><span class="co">#&gt; 8            5          5          0</span></span>
+<span id="cb7-60"><a href="#cb7-60"></a><span class="co">#&gt; 9            4          5          1</span></span>
+<span id="cb7-61"><a href="#cb7-61"></a><span class="co">#&gt; 10           3          5          2</span></span>
+<span id="cb7-62"><a href="#cb7-62"></a><span class="co">#&gt; 11           5          5          0</span></span>
+<span id="cb7-63"><a href="#cb7-63"></a><span class="co">#&gt; 12           6          6          0</span></span></code></pre></div>
+</div>
+<div id="gantt-matrix" class="section level2">
+<h2>Gantt Matrix</h2>
+<p>Create a matrix that represents a Gantt chart, a matrix where “1” indicate that an activity is planned to be in execution.</p>
+<p>In this matrix, the rows represents activities, Whereas the columns represents the activity execution period. So, the number of columns is equal to project duration.</p>
+<ul>
+<li><p><code>Schedule$gantt_matrix()</code> Return the Gantt matrix.</p></li>
+<li><p><code>Schedule$xy_gantt_matrix(gantt=NULL)</code> Transform a Gantt matrix in x, y coordinates and the weight one. Each point greater than zero in a Gantt matrix becomes a x, y coordinate.</p></li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>activities &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="dt">id        =</span> <span class="kw">c</span>( <span class="dv">1</span>,   <span class="dv">2</span>,   <span class="dv">3</span>,   <span class="dv">4</span> ),</span>
+<span id="cb8-3"><a href="#cb8-3"></a>  <span class="dt">name      =</span> <span class="kw">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>),</span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="dt">duration  =</span> <span class="kw">c</span>( <span class="dv">2</span>,   <span class="dv">3</span>,   <span class="dv">1</span>,   <span class="dv">2</span> )</span>
+<span id="cb8-5"><a href="#cb8-5"></a>)</span>
+<span id="cb8-6"><a href="#cb8-6"></a>relations &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="dt">from =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">4</span>),</span>
+<span id="cb8-8"><a href="#cb8-8"></a>  <span class="dt">to   =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb8-9"><a href="#cb8-9"></a>)</span>
+<span id="cb8-10"><a href="#cb8-10"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>(activities, relations)</span>
+<span id="cb8-11"><a href="#cb8-11"></a>schedule<span class="op">$</span>title &lt;-<span class="st"> &quot;A project&quot;</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>schedule<span class="op">$</span>reference &lt;-<span class="st"> &quot;From criticalpath&quot;</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a>gantt &lt;-<span class="st"> </span>schedule<span class="op">$</span><span class="kw">gantt_matrix</span>()</span>
+<span id="cb8-14"><a href="#cb8-14"></a>gantt</span>
+<span id="cb8-15"><a href="#cb8-15"></a><span class="co">#&gt;   1 2 3 4 5 6</span></span>
+<span id="cb8-16"><a href="#cb8-16"></a><span class="co">#&gt; 1 0 0 1 1 0 0</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a><span class="co">#&gt; 2 0 0 1 1 1 0</span></span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="co">#&gt; 3 0 0 0 0 0 1</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a><span class="co">#&gt; 4 1 1 0 0 0 0</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a><span class="co">#&gt; attr(,&quot;class&quot;)</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a><span class="co">#&gt; [1] &quot;Gantt&quot;  &quot;matrix&quot; &quot;array&quot;</span></span>
+<span id="cb8-22"><a href="#cb8-22"></a><span class="co"># What is the effort by time period?</span></span>
+<span id="cb8-23"><a href="#cb8-23"></a><span class="kw">colSums</span>(gantt) <span class="co"># 1 1 2 2 1 1</span></span>
+<span id="cb8-24"><a href="#cb8-24"></a><span class="co">#&gt; 1 2 3 4 5 6 </span></span>
+<span id="cb8-25"><a href="#cb8-25"></a><span class="co">#&gt; 1 1 2 2 1 1</span></span>
+<span id="cb8-26"><a href="#cb8-26"></a><span class="co"># What is the duration by activities?</span></span>
+<span id="cb8-27"><a href="#cb8-27"></a><span class="kw">rowSums</span>(gantt) <span class="co"># 2 3 1 2</span></span>
+<span id="cb8-28"><a href="#cb8-28"></a><span class="co">#&gt; 1 2 3 4 </span></span>
+<span id="cb8-29"><a href="#cb8-29"></a><span class="co">#&gt; 2 3 1 2</span></span>
+<span id="cb8-30"><a href="#cb8-30"></a><span class="co"># what is the S curve</span></span>
+<span id="cb8-31"><a href="#cb8-31"></a><span class="kw">cumsum</span>(<span class="kw">colSums</span>(gantt))</span>
+<span id="cb8-32"><a href="#cb8-32"></a><span class="co">#&gt; 1 2 3 4 5 6 </span></span>
+<span id="cb8-33"><a href="#cb8-33"></a><span class="co">#&gt; 1 2 4 6 7 8</span></span>
+<span id="cb8-34"><a href="#cb8-34"></a><span class="kw">plot</span>(<span class="kw">cumsum</span>(<span class="kw">colSums</span>(gantt)), <span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">lwd=</span><span class="dv">3</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>xyw &lt;-<span class="st"> </span>schedule<span class="op">$</span><span class="kw">xy_gantt_matrix</span>()</span>
+<span id="cb9-2"><a href="#cb9-2"></a>xyw</span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="co">#&gt;      [,1] [,2] [,3]</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="co">#&gt; [1,]    2    1    1</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="co">#&gt; [2,]    3    1    1</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="co">#&gt; [3,]    2    2    1</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="co">#&gt; [4,]    3    2    1</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a><span class="co">#&gt; [5,]    4    2    1</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a><span class="co">#&gt; [6,]    5    3    1</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a><span class="co">#&gt; [7,]    0    4    1</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a><span class="co">#&gt; [8,]    1    4    1</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a><span class="kw">plot</span>(xyw[, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+<div id="how-to-change-activities-duration" class="section level1">
+<h1>How to change activities duration</h1>
+<div id="change-activities-duration" class="section level2">
+<h2>Change Activities Duration</h2>
+<p>Change activities duration and calculate critical path. This way is faster than creating a new schedule with new durations. new_durations A vector with new activities’ duration.</p>
+<p><strong>Attention:</strong> The vector duration must be ordered by activity id.</p>
+<ul>
+<li><strong>Usage:</strong> <code>Schedule$change_durations(new_durations)</code></li>
+</ul>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>activities &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="dt">id        =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">17</span>,</span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="dt">name      =</span> <span class="kw">paste</span>(<span class="st">&quot;a&quot;</span>, <span class="kw">as.character</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">17</span>), <span class="dt">sep=</span><span class="st">&quot;&quot;</span>),</span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="dt">duration  =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">2</span>, <span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">1</span>, <span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">3</span>,<span class="dv">3</span>, <span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">2</span>)</span>
+<span id="cb10-5"><a href="#cb10-5"></a>)</span>
+<span id="cb10-6"><a href="#cb10-6"></a></span>
+<span id="cb10-7"><a href="#cb10-7"></a>relations &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb10-8"><a href="#cb10-8"></a>  <span class="dt">from =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>,  <span class="dv">8</span>,  <span class="dv">8</span>,</span>
+<span id="cb10-9"><a href="#cb10-9"></a>    <span class="dv">8</span>,  <span class="dv">8</span>,  <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">14</span>, <span class="dv">15</span>, <span class="dv">15</span>),</span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="dt">to   =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span>,</span>
+<span id="cb10-11"><a href="#cb10-11"></a>   <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">14</span>, <span class="dv">14</span>, <span class="dv">14</span>, <span class="dv">14</span>, <span class="dv">15</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">16</span>, <span class="dv">17</span>)</span>
+<span id="cb10-12"><a href="#cb10-12"></a>)</span>
+<span id="cb10-13"><a href="#cb10-13"></a></span>
+<span id="cb10-14"><a href="#cb10-14"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>(activities, relations)</span>
+<span id="cb10-15"><a href="#cb10-15"></a>schedule<span class="op">$</span>title &lt;-<span class="st"> &quot;Project 2: Patient Transport System&quot;</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a>schedule<span class="op">$</span>reference &lt;-</span>
+<span id="cb10-17"><a href="#cb10-17"></a><span class="st">  &quot;VANHOUCKE, Mario. Integrated project management and control:</span></span>
+<span id="cb10-18"><a href="#cb10-18"></a><span class="st">  first comes the theory, then the practice. Gent: Springer, 2014, p. 9&quot;</span></span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="co">#Project duration</span></span>
+<span id="cb10-20"><a href="#cb10-20"></a>schedule<span class="op">$</span>duration <span class="co"># 25</span></span>
+<span id="cb10-21"><a href="#cb10-21"></a><span class="co">#&gt; [1] 25</span></span>
+<span id="cb10-22"><a href="#cb10-22"></a><span class="co">#Activities duration</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a>schedule<span class="op">$</span>activities<span class="op">$</span>duration</span>
+<span id="cb10-24"><a href="#cb10-24"></a><span class="co">#&gt;  [1] 1 1 3 2 2 2 2 1 4 5 3 3 4 5 1 5 2</span></span>
+<span id="cb10-25"><a href="#cb10-25"></a></span>
+<span id="cb10-26"><a href="#cb10-26"></a>new_durations &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">5</span>, <span class="dv">4</span>,<span class="dv">3</span>, <span class="dv">2</span>,<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">5</span>,<span class="dv">3</span>,<span class="dv">4</span>, <span class="dv">2</span>,<span class="dv">1</span>, <span class="dv">2</span>,<span class="dv">4</span>)</span>
+<span id="cb10-27"><a href="#cb10-27"></a>schedule<span class="op">$</span><span class="kw">change_durations</span>(new_durations)</span>
+<span id="cb10-28"><a href="#cb10-28"></a></span>
+<span id="cb10-29"><a href="#cb10-29"></a><span class="co">#Project duration</span></span>
+<span id="cb10-30"><a href="#cb10-30"></a>schedule<span class="op">$</span>duration <span class="co"># 31</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a><span class="co">#&gt; [1] 31</span></span>
+<span id="cb10-32"><a href="#cb10-32"></a><span class="co">#Activities duration</span></span>
+<span id="cb10-33"><a href="#cb10-33"></a>schedule<span class="op">$</span>activities<span class="op">$</span>duration</span>
+<span id="cb10-34"><a href="#cb10-34"></a><span class="co">#&gt;  [1] 1 2 5 4 3 2 1 5 3 5 5 3 4 2 1 2 4</span></span></code></pre></div>
+</div>
+</div>
+<div id="how-to-get-relations-properties" class="section level1">
+<h1>How to get relations properties</h1>
+<div id="relation-properties" class="section level2">
+<h2>Relation Properties</h2>
+<p>There several methods about relations that you can use to get information about them. After you add activities and relations to a schedule, you may want to know how much relations has in a schedule or which relations belong to critical path. In this section, we will explain how you can find these information.</p>
+<ul>
+<li><strong>Has Any Relation:</strong> A logical value that indicates if the schedule has any relation. A TRUE value means that the schedule has some relation; a FALSE, means that the schedule does not have any relation.
+<ul>
+<li>Usage: <code>Schedule$has_any_relation</code></li>
+</ul></li>
+<li><strong>Number of Relations:</strong> Number of relations in a schedule as an integer value.
+<ul>
+<li>Usage: <code>Schedule$nr_relations</code></li>
+</ul></li>
+<li><strong>Relations:</strong> Return a data frame with all relations of a schedule in topological order. This is the main information calculated by CPM. The data frame is formed by following structure:
+<ul>
+<li><p><strong>from:</strong> Predecessor activity id from a relation.</p></li>
+<li><p><strong>to:</strong> Successor activity id from a relation.</p></li>
+<li><p><strong>type:</strong> The type of relation between activities. Its value may be: FS, FF, SS, SF, as described in [schedule_from_data_frame]</p></li>
+<li><p><strong>lag:</strong> The time period between activity predecessor and activity successor activity</p></li>
+<li><p><strong>critical:</strong> A critical relation formed by two activity critical: predecessor and successor. <code>TRUE</code> indicates it is critical; <code>FALSE</code> indicates it is not critical.</p></li>
+<li><p><strong>ord:</strong> Indicates de order that the relation was added in the schedule.</p></li>
+<li><p><strong>i_from:</strong> It the index of predecessor activity in the activities data frame.</p></li>
+<li><p><strong>i_to:</strong> It the index of successor activity in the activities data frame.</p></li>
+<li><p>Usage: <code>Schedule$relations</code></p></li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Create a schedule</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb11-3"><a href="#cb11-3"></a>schedule<span class="op">$</span>title &lt;-<span class="st"> &quot;Fictitious Project Example&quot;</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>schedule<span class="op">$</span>reference &lt;-<span class="st"> &quot;VANHOUCKE, Mario. Measuring time:</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="st">  improving project performance using earned value management.</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a><span class="st">  Gent: Springer, 2009, p. 18&quot;</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a></span>
+<span id="cb11-8"><a href="#cb11-8"></a>schedule<span class="op">$</span>has_any_relation  <span class="co"># FALSE</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a><span class="co">#&gt; [1] FALSE</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a>schedule<span class="op">$</span>nr_relations      <span class="co"># 0</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a><span class="co">#&gt; [1] 0</span></span>
+<span id="cb11-12"><a href="#cb11-12"></a></span>
+<span id="cb11-13"><a href="#cb11-13"></a><span class="co"># Add activities and relations to it.</span></span>
+<span id="cb11-14"><a href="#cb11-14"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">1</span>, <span class="st">&quot;a1&quot;</span> , <span class="dv">0</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>))</span>
+<span id="cb11-15"><a href="#cb11-15"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">2</span>, <span class="st">&quot;a2&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">5</span>))</span>
+<span id="cb11-16"><a href="#cb11-16"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">3</span>, <span class="st">&quot;a3&quot;</span> , <span class="dv">9</span>, <span class="kw">c</span>(<span class="dv">10</span>))</span>
+<span id="cb11-17"><a href="#cb11-17"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">4</span>, <span class="st">&quot;a4&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">6</span>))</span>
+<span id="cb11-18"><a href="#cb11-18"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">5</span>, <span class="st">&quot;a5&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">9</span>))</span>
+<span id="cb11-19"><a href="#cb11-19"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">6</span>, <span class="st">&quot;a6&quot;</span> , <span class="dv">5</span>, <span class="kw">c</span>(<span class="dv">7</span>))</span>
+<span id="cb11-20"><a href="#cb11-20"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">7</span>, <span class="st">&quot;a7&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">8</span>,<span class="dv">11</span>))</span>
+<span id="cb11-21"><a href="#cb11-21"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">8</span>, <span class="st">&quot;a8&quot;</span> , <span class="dv">7</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb11-22"><a href="#cb11-22"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">9</span>, <span class="st">&quot;a9&quot;</span> , <span class="dv">8</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb11-23"><a href="#cb11-23"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">10</span>, <span class="st">&quot;a10&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb11-24"><a href="#cb11-24"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">11</span>, <span class="st">&quot;a11&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb11-25"><a href="#cb11-25"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">12</span>, <span class="st">&quot;a12&quot;</span>, <span class="dv">0</span>)</span>
+<span id="cb11-26"><a href="#cb11-26"></a></span>
+<span id="cb11-27"><a href="#cb11-27"></a>schedule<span class="op">$</span>has_any_relation  <span class="co"># TRUE</span></span>
+<span id="cb11-28"><a href="#cb11-28"></a><span class="co">#&gt; [1] TRUE</span></span>
+<span id="cb11-29"><a href="#cb11-29"></a>schedule<span class="op">$</span>nr_relations      <span class="co"># 14</span></span>
+<span id="cb11-30"><a href="#cb11-30"></a><span class="co">#&gt; [1] 14</span></span>
+<span id="cb11-31"><a href="#cb11-31"></a></span>
+<span id="cb11-32"><a href="#cb11-32"></a>schedule<span class="op">$</span>relations</span>
+<span id="cb11-33"><a href="#cb11-33"></a><span class="co">#&gt;    from to type lag critical ord i_from i_to</span></span>
+<span id="cb11-34"><a href="#cb11-34"></a><span class="co">#&gt; 1     1  2   FS   0     TRUE   1      1    2</span></span>
+<span id="cb11-35"><a href="#cb11-35"></a><span class="co">#&gt; 2     1  3   FS   0    FALSE   2      1    3</span></span>
+<span id="cb11-36"><a href="#cb11-36"></a><span class="co">#&gt; 3     1  4   FS   0    FALSE   3      1    4</span></span>
+<span id="cb11-37"><a href="#cb11-37"></a><span class="co">#&gt; 4     2  5   FS   0     TRUE   4      2    5</span></span>
+<span id="cb11-38"><a href="#cb11-38"></a><span class="co">#&gt; 5     3 10   FS   0    FALSE   9      3   10</span></span>
+<span id="cb11-39"><a href="#cb11-39"></a><span class="co">#&gt; 6     4  6   FS   0    FALSE   5      4    6</span></span>
+<span id="cb11-40"><a href="#cb11-40"></a><span class="co">#&gt; 7     5  9   FS   0     TRUE   8      5    9</span></span>
+<span id="cb11-41"><a href="#cb11-41"></a><span class="co">#&gt; 8    10 12   FS   0    FALSE  13     10   12</span></span>
+<span id="cb11-42"><a href="#cb11-42"></a><span class="co">#&gt; 9     6  7   FS   0    FALSE   6      6    7</span></span>
+<span id="cb11-43"><a href="#cb11-43"></a><span class="co">#&gt; 10    9 12   FS   0     TRUE  12      9   12</span></span>
+<span id="cb11-44"><a href="#cb11-44"></a><span class="co">#&gt; 11    7  8   FS   0    FALSE   7      7    8</span></span>
+<span id="cb11-45"><a href="#cb11-45"></a><span class="co">#&gt; 12    7 11   FS   0    FALSE  10      7   11</span></span>
+<span id="cb11-46"><a href="#cb11-46"></a><span class="co">#&gt; 13    8 12   FS   0    FALSE  11      8   12</span></span>
+<span id="cb11-47"><a href="#cb11-47"></a><span class="co">#&gt; 14   11 12   FS   0    FALSE  14     11   12</span></span></code></pre></div>
+</div>
+<div id="successors-and-predecessors" class="section level2">
+<h2>Successors and Predecessors</h2>
+<p>A schedule is structured by activities and each activity has zero, one or more successors and predecessors. Besides, a relation may be redundant.</p>
+<ul>
+<li><strong>All Successors:</strong> List all successors from an activity: direct and indirect successors.
+<ul>
+<li>Usage: <code>Schedule$all_successors(id, ign_to=NULL)</code>
+<ul>
+<li><strong>id</strong> Activity id to be listed.</li>
+<li><strong>ign_to</strong> A relation to be ignored: id -&gt; ign_to. Activities from this relation will be ignored.</li>
+</ul></li>
+</ul></li>
+<li><strong>All Predecessors:</strong> List all predecessors from an activity: direct or indirect predecessors.
+<ul>
+<li>Usage: <code>Schedule$all_predecessors(id, ign_from=NULL)</code>
+<ul>
+<li><strong>id</strong> Activity id to be listed.</li>
+<li><strong>ign_from</strong> A relation to be ignored: ign_from -&gt; id. Activities from this relation will be ignored.</li>
+</ul></li>
+</ul></li>
+<li><strong>Is Redundant:</strong> Verify if a relation between two activities is redundant. A relation A-&gt;C is redundant if there are A-&gt;C, A-&gt;B, B-&gt;C relations. It returns a logical <code>TRUE</code> if an arc is redundant; <code>FALSE</code> if it is not.
+<ul>
+<li>Usage: <code>Schedule$is_redundant(id_from, id_to)</code>
+<ul>
+<li><strong>id_from</strong> From activity id.</li>
+<li><strong>id_to</strong> To activity id.</li>
+</ul></li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Create a schedule</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb12-3"><a href="#cb12-3"></a>schedule<span class="op">$</span>title &lt;-<span class="st"> &quot;Fictitious Project Example&quot;</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>schedule<span class="op">$</span>reference &lt;-<span class="st"> &quot;VANHOUCKE, Mario. Measuring time:</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="st">  improving project performance using earned value management.</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="st">  Gent: Springer, 2009, p. 18&quot;</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a></span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="co"># Add activities and relations to it.</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">2</span>, <span class="st">&quot;a2&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">12</span>))</span>
+<span id="cb12-10"><a href="#cb12-10"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">3</span>, <span class="st">&quot;a3&quot;</span> , <span class="dv">9</span>, <span class="kw">c</span>(<span class="dv">10</span>))</span>
+<span id="cb12-11"><a href="#cb12-11"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">4</span>, <span class="st">&quot;a4&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">6</span>))</span>
+<span id="cb12-12"><a href="#cb12-12"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">5</span>, <span class="st">&quot;a5&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">9</span>))</span>
+<span id="cb12-13"><a href="#cb12-13"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">6</span>, <span class="st">&quot;a6&quot;</span> , <span class="dv">5</span>, <span class="kw">c</span>(<span class="dv">7</span>))</span>
+<span id="cb12-14"><a href="#cb12-14"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">7</span>, <span class="st">&quot;a7&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">8</span>,<span class="dv">11</span>))</span>
+<span id="cb12-15"><a href="#cb12-15"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">8</span>, <span class="st">&quot;a8&quot;</span> , <span class="dv">7</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb12-16"><a href="#cb12-16"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">9</span>, <span class="st">&quot;a9&quot;</span> , <span class="dv">8</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb12-17"><a href="#cb12-17"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">10</span>, <span class="st">&quot;a10&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb12-18"><a href="#cb12-18"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">11</span>, <span class="st">&quot;a11&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb12-19"><a href="#cb12-19"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">12</span>, <span class="st">&quot;a12&quot;</span>, <span class="dv">0</span>)</span>
+<span id="cb12-20"><a href="#cb12-20"></a></span>
+<span id="cb12-21"><a href="#cb12-21"></a>schedule<span class="op">$</span><span class="kw">all_successors</span>(<span class="dv">2</span>) <span class="co"># 5, 9, 12</span></span>
+<span id="cb12-22"><a href="#cb12-22"></a><span class="co">#&gt; [1]  5  9 12</span></span>
+<span id="cb12-23"><a href="#cb12-23"></a>schedule<span class="op">$</span><span class="kw">all_successors</span>(<span class="dv">7</span>) <span class="co"># 8, 11, 12</span></span>
+<span id="cb12-24"><a href="#cb12-24"></a><span class="co">#&gt; [1]  8 11 12</span></span>
+<span id="cb12-25"><a href="#cb12-25"></a>schedule<span class="op">$</span><span class="kw">all_successors</span>(<span class="dv">10</span>) <span class="co"># 12</span></span>
+<span id="cb12-26"><a href="#cb12-26"></a><span class="co">#&gt; [1] 12</span></span>
+<span id="cb12-27"><a href="#cb12-27"></a></span>
+<span id="cb12-28"><a href="#cb12-28"></a>schedule<span class="op">$</span><span class="kw">all_predecessors</span>(<span class="dv">2</span>) <span class="co"># nothing</span></span>
+<span id="cb12-29"><a href="#cb12-29"></a><span class="co">#&gt; numeric(0)</span></span>
+<span id="cb12-30"><a href="#cb12-30"></a>schedule<span class="op">$</span><span class="kw">all_predecessors</span>(<span class="dv">7</span>) <span class="co"># 6, 4</span></span>
+<span id="cb12-31"><a href="#cb12-31"></a><span class="co">#&gt; [1] 6 4</span></span>
+<span id="cb12-32"><a href="#cb12-32"></a>schedule<span class="op">$</span><span class="kw">all_predecessors</span>(<span class="dv">10</span>) <span class="co"># 3</span></span>
+<span id="cb12-33"><a href="#cb12-33"></a><span class="co">#&gt; [1] 3</span></span>
+<span id="cb12-34"><a href="#cb12-34"></a></span>
+<span id="cb12-35"><a href="#cb12-35"></a>schedule<span class="op">$</span><span class="kw">is_redundant</span>(<span class="dv">2</span>, <span class="dv">5</span>)  <span class="co">#FALSE</span></span>
+<span id="cb12-36"><a href="#cb12-36"></a><span class="co">#&gt; [1] FALSE</span></span>
+<span id="cb12-37"><a href="#cb12-37"></a>schedule<span class="op">$</span><span class="kw">is_redundant</span>(<span class="dv">2</span>, <span class="dv">12</span>) <span class="co">#TRUE</span></span>
+<span id="cb12-38"><a href="#cb12-38"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+</div>
+<div id="how-to-get-topological-properties" class="section level1">
+<h1>How to get topological properties</h1>
+<div id="topological-indicators" class="section level2">
+<h2>Topological Indicators</h2>
+<p>Shows information about network structure. It may be of four type:</p>
+<p><strong>SP Serial or Parallel:</strong> It shows the closeness of a network to a serial or parallel graph. As the network becomes serial, the SP increase, until one, when the network totally serial. - Usage: <code>Schedule$topoi_sp()</code></p>
+<p><strong>AD Activity Distribution:</strong> Measures the distribution of the activities over the levels. If AD is approximately equal zero, each level has same numbers of activities. Otherwise, if AD is equal one, the quantity of each level is not uniformly distributed. - Usage: <code>Schedule$topoi_ad()</code></p>
+<p><strong>LA Length of Arcs:</strong> Measures the presence of long arcs based on the difference between the progressive level of the end activity and the start node of each relation. If LA is approximately equal zero, the progressive level between activities are as far as possible. Otherwise, if LA is equal one, the relation distance are one. - Usage: <code>Schedule$topoi_la()</code></p>
+<p><strong>TF Topological Float Indicator:</strong> Measures the topological float of each activity. If TF = 0, there is no float between activities. If TF = 1, there is float between activities and they be shift without affecting other activities. - Usage: <code>Schedule$topoi_tf()</code></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Create a schedule</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>schedule &lt;-<span class="st"> </span>Schedule<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb13-3"><a href="#cb13-3"></a>schedule<span class="op">$</span>title &lt;-<span class="st"> &quot;Fictitious Project Example&quot;</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a>schedule<span class="op">$</span>reference &lt;-<span class="st"> &quot;VANHOUCKE, Mario. Measuring time:</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="st">  improving project performance using earned value management.</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="st">  Gent: Springer, 2009, p. 18&quot;</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a></span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="co"># Add activities and relations to it.</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">1</span>, <span class="st">&quot;a1&quot;</span> , <span class="dv">0</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>))</span>
+<span id="cb13-10"><a href="#cb13-10"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">2</span>, <span class="st">&quot;a2&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">5</span>))</span>
+<span id="cb13-11"><a href="#cb13-11"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">3</span>, <span class="st">&quot;a3&quot;</span> , <span class="dv">9</span>, <span class="kw">c</span>(<span class="dv">10</span>))</span>
+<span id="cb13-12"><a href="#cb13-12"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">4</span>, <span class="st">&quot;a4&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">6</span>))</span>
+<span id="cb13-13"><a href="#cb13-13"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">5</span>, <span class="st">&quot;a5&quot;</span> , <span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">9</span>))</span>
+<span id="cb13-14"><a href="#cb13-14"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">6</span>, <span class="st">&quot;a6&quot;</span> , <span class="dv">5</span>, <span class="kw">c</span>(<span class="dv">7</span>))</span>
+<span id="cb13-15"><a href="#cb13-15"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">7</span>, <span class="st">&quot;a7&quot;</span> , <span class="dv">1</span>, <span class="kw">c</span>(<span class="dv">8</span>,<span class="dv">11</span>))</span>
+<span id="cb13-16"><a href="#cb13-16"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">8</span>, <span class="st">&quot;a8&quot;</span> , <span class="dv">7</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb13-17"><a href="#cb13-17"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>(  <span class="dv">9</span>, <span class="st">&quot;a9&quot;</span> , <span class="dv">8</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb13-18"><a href="#cb13-18"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">10</span>, <span class="st">&quot;a10&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb13-19"><a href="#cb13-19"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">11</span>, <span class="st">&quot;a11&quot;</span>, <span class="dv">3</span>, <span class="kw">c</span>(<span class="dv">12</span>))</span>
+<span id="cb13-20"><a href="#cb13-20"></a>schedule<span class="op">$</span><span class="kw">add_act_rel</span>( <span class="dv">12</span>, <span class="st">&quot;a12&quot;</span>, <span class="dv">0</span>)</span>
+<span id="cb13-21"><a href="#cb13-21"></a></span>
+<span id="cb13-22"><a href="#cb13-22"></a>schedule<span class="op">$</span><span class="kw">topoi_sp</span>()</span>
+<span id="cb13-23"><a href="#cb13-23"></a><span class="co">#&gt; [1] 0.4545455</span></span>
+<span id="cb13-24"><a href="#cb13-24"></a>schedule<span class="op">$</span><span class="kw">topoi_ad</span>()</span>
+<span id="cb13-25"><a href="#cb13-25"></a><span class="co">#&gt; [1] 0.4</span></span>
+<span id="cb13-26"><a href="#cb13-26"></a>schedule<span class="op">$</span><span class="kw">topoi_la</span>()</span>
+<span id="cb13-27"><a href="#cb13-27"></a><span class="co">#&gt; [1] 0.07692308</span></span>
+<span id="cb13-28"><a href="#cb13-28"></a>schedule<span class="op">$</span><span class="kw">topoi_tf</span>()</span>
+<span id="cb13-29"><a href="#cb13-29"></a><span class="co">#&gt; [1] 0.2333333</span></span></code></pre></div>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>Csardi, G. &amp; Nepusz, T. (2005). The Igraph Software Package for Complex Network Research. <strong>InterJournal</strong>. Complex Systems. 1695.</p>
+<p>Project Management Institute (2017) <strong>A Guide to the Project Management Body of Knowledge (PMBOK Guide)</strong>. Sixth Edition.</p>
+<p>Project Management Institute (2017) <strong>PMI Lexicon of Project Management Terms:</strong> Version 3.2.</p>
+<p>Vanhoucke, M. (2009) <strong>Measuring Time</strong>: Improving Project Performance Using Earned Value Management. Springer-Verlag US.</p>
+<p>Vanhoucke, M. (2013) <strong>Project Management with Dynamic Scheduling</strong>: Baseline Scheduling, Risk Analysis and Project Control. Springer-Verlag Berlin Heidelberg.</p>
+<p>Vanhoucke, M. (2014) <strong>Integrated Project Management and Control</strong>: First Comes the Theory, then the Practice. Springer International Publishing Switzerland.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
