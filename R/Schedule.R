@@ -2,8 +2,6 @@
 #' @name Schedule
 #' @aliases schedule
 #'
-#' @export
-#'
 #' @description
 #'
 #' This class is a representation of Precedence Diagramming Method (PDM).
@@ -65,146 +63,9 @@
 #'  - How to get topological properties:
 #'    - Topological Indicators.
 #'
-#' @examples
-#' ## ------------------------------------------------
-#' ## Property `Schedule$title`
-#' ## ------------------------------------------------
-#' # Create a schedule
-#' schedule <- Schedule$new()
-#' schedule$title <- "Fictitious Project Example"
-#' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-#'   improving project performance using earned value management.
-#'   Gent: Springer, 2009, p. 18"
-#' schedule$title
+#' @import R6
 #'
-#' ## ------------------------------------------------
-#' ## Property `Schedule$reference`
-#' ## ------------------------------------------------
-#' # Create a schedule
-#' schedule <- Schedule$new()
-#' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-#'   improving project performance using earned value management.
-#'   Gent: Springer, 2009, p. 18"
-#' schedule$reference
-#'
-#' ## ------------------------------------------------
-#' ## Property `Schedule$duration`
-#' ## ------------------------------------------------
-#' # Create a schedule
-#' schedule <- Schedule$new()
-#' schedule$title <- "Fictitious Project Example"
-#' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-#'   improving project performance using earned value management.
-#'   Gent: Springer, 2009, p. 18"
-#'
-#' # Add activities and relations to it.
-#' schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-#' schedule$add_act_rel(  2, "a2" , 4, c(5))
-#' schedule$add_act_rel(  3, "a3" , 9, c(10))
-#' schedule$add_act_rel(  4, "a4" , 1, c(6))
-#' schedule$add_act_rel(  5, "a5" , 4, c(9))
-#' schedule$add_act_rel(  6, "a6" , 5, c(7))
-#' schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-#' schedule$add_act_rel(  8, "a8" , 7, c(12))
-#' schedule$add_act_rel(  9, "a9" , 8, c(12))
-#' schedule$add_act_rel( 10, "a10", 3, c(12))
-#' schedule$add_act_rel( 11, "a11", 3, c(12))
-#' schedule$add_act_rel( 12, "a12", 0)
-#' schedule$duration
-#'
-#' ## ------------------------------------------------
-#' ## Property `Schedule$has_any_activity`
-#' ## ------------------------------------------------
-#' # Create a schedule
-#' schedule <- Schedule$new()
-#' schedule$has_any_activity  # FALSE
-#'
-#' # Add one activity.
-#' schedule$add_activity( 1, "a1" , 0)
-#' schedule$has_any_activity  # TRUE
-#'
-#' ## ------------------------------------------------
-#' ## Property `Schedule$nr_activities`
-#' ## ------------------------------------------------
-#' # Create a schedule
-#' schedule <- Schedule$new()
-#' schedule$nr_activities     # 0
-#'
-#' # Add one activity.
-#' schedule$add_activity( 1, "a1" , 0)
-#' schedule$nr_activities     # 1
-#'
-#' ## ------------------------------------------------
-#' ## Property `Schedule$activities`
-#' ## ------------------------------------------------
-#' # Create a schedule
-#' schedule <- Schedule$new()
-#'
-#' # Add activities and relations to it.
-#' schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-#' schedule$add_act_rel(  2, "a2" , 4, c(5))
-#' schedule$add_act_rel(  3, "a3" , 9, c(6))
-#' schedule$add_act_rel(  4, "a4" , 1, c(6))
-#' schedule$add_act_rel(  5, "a5" , 4, c(6))
-#' schedule$add_act_rel(  6, "a6" , 5)
-#' schedule$activities
-#'
-#' ## ------------------------------------------------
-#' ## Property `Schedule$get_activity(id)`
-#' ## ------------------------------------------------
-#' # Create a schedule
-#' schedule <- Schedule$new()
-#'
-#' # Add activities and relations to it.
-#' schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-#' schedule$add_act_rel(  2, "a2" , 4, c(5))
-#' schedule$add_act_rel(  3, "a3" , 9, c(6))
-#' schedule$add_act_rel(  4, "a4" , 1, c(6))
-#' schedule$add_act_rel(  5, "a5" , 4, c(6))
-#' schedule$add_act_rel(  6, "a6" , 5)
-#' schedule$get_activity(4)
-#' schedule$get_activity(6)
-#'
-#' ## ------------------------------------------------
-#' ## Property `Schedule$has_any_relation`
-#' ## ------------------------------------------------
-#' # Create a schedule
-#' schedule <- Schedule$new()
-#' schedule$has_any_relation   #FALSE
-#'
-#' # Add activities and relations to it.
-#' schedule$add_act_rel(1, "a1" , 0, c(2,3,4))
-#' schedule$add_act_rel(2, "a2" , 4)
-#' schedule$add_act_rel(3, "a3" , 9)
-#' schedule$add_act_rel(4, "a4" , 1)
-#' schedule$has_any_relation   # TRUE
-#'
-#' ## ------------------------------------------------
-#' ## Property `Schedule$nr_relations`
-#' ## ------------------------------------------------
-#' # Create a schedule
-#' schedule <- Schedule$new()
-#' schedule$nr_relations   # 0
-#'
-#' # Add activities and relations to it.
-#' schedule$add_act_rel(1, "a1" , 0, c(2,3,4))
-#' schedule$add_act_rel(2, "a2" , 4)
-#' schedule$add_act_rel(3, "a3" , 9)
-#' schedule$add_act_rel(4, "a4" , 1)
-#' schedule$nr_relations   # 3
-#'
-#' ## ------------------------------------------------
-#' ## Property `Schedule$relations`
-#' ## ------------------------------------------------
-#' # Create a schedule
-#' schedule <- Schedule$new()
-#' # Add activities and relations to it.
-#' schedule$add_act_rel(1, "a1" , 0, c(2,3,4))
-#' schedule$add_act_rel(2, "a2" , 4)
-#' schedule$add_act_rel(3, "a3" , 9)
-#' schedule$add_act_rel(4, "a4" , 1)
-#' schedule$relations
-#'
+#' @export
 Schedule <- R6::R6Class("Schedule",
 
   private = list(
@@ -231,38 +92,38 @@ Schedule <- R6::R6Class("Schedule",
       if(!base::is.data.frame(obj))
          return(FALSE)
 
-      if(base::nrow(obj) == 0)
+      if(base::nrow(obj) == 0L)
         return(FALSE)
 
       TRUE
     },
 
-    new_activity = function(nr_activities=0) {
+    new_activity = function(nr_activities = 0L) {
       data.frame(
         id = integer(nr_activities),
         name = character(nr_activities),
-        duration = numeric(nr_activities),
+        duration = integer(nr_activities),
         milestone = logical(nr_activities),
         critical = logical(nr_activities),
-        ES = numeric(nr_activities),
-        EF = numeric(nr_activities),
-        LS = numeric(nr_activities),
-        LF = numeric(nr_activities),
-        total_float = numeric(nr_activities),
-        free_float = numeric(nr_activities)
+        ES = integer(nr_activities),
+        EF = integer(nr_activities),
+        LS = integer(nr_activities),
+        LF = integer(nr_activities),
+        total_float = integer(nr_activities),
+        free_float = integer(nr_activities)
       )
     },
 
-    new_relation = function(nr_relations=0) {
+    new_relation = function(nr_relations = 0L) {
       data.frame(
-        from = numeric(nr_relations),
-        to   = numeric(nr_relations),
+        from = integer(nr_relations),
+        to   = integer(nr_relations),
         type = character(nr_relations),
-        lag = numeric(nr_relations),
+        lag = integer(nr_relations),
         critical = logical(nr_relations),
-        ord = numeric(nr_relations),
-        i_from = numeric(nr_relations),
-        i_to = numeric(nr_relations)
+        ord = integer(nr_relations),
+        i_from = integer(nr_relations),
+        i_to = integer(nr_relations)
       )
     },
 
@@ -271,13 +132,13 @@ Schedule <- R6::R6Class("Schedule",
         title = "",
         reference = "",
 
-        nr_activities = 0,
+        nr_activities = 0L,
         has_any_activity = FALSE,
 
-        nr_relations = 0,
+        nr_relations = 0L,
         has_any_relation = FALSE,
 
-        duration = 0
+        duration = 0L
       )
     },
 
@@ -317,7 +178,7 @@ Schedule <- R6::R6Class("Schedule",
       from_exist <- private$.relations$from == from
       to_exist <- private$.relations$to == to
       u <- which(from_exist & to_exist)
-      if(length(u) == 0){
+      if(length(u) == 0L){
         stop(paste("Relation", from, "->", to, " must exist!"))
       }
     },
@@ -326,7 +187,7 @@ Schedule <- R6::R6Class("Schedule",
       from_exist <- private$.relations$from == from
       to_exist <- private$.relations$to == to
       u <- which(from_exist & to_exist)
-      if(length(u) > 0){
+      if(length(u) > 0L){
         stop(paste("Relations", from, "->", to, " must NOT exist!"))
       }
     },
@@ -356,7 +217,7 @@ Schedule <- R6::R6Class("Schedule",
       private$config$ends <- match(ids, private$.activities$id)
 
       # 4) Topological sorting
-      if(self$nr_relations > 0) {
+      if(self$nr_relations > 0L) {
 
         private$.relations$i_from <- match(private$.relations$from, private$.activities$id)
         private$.relations$i_to <- match(private$.relations$to, private$.activities$id)
@@ -366,7 +227,7 @@ Schedule <- R6::R6Class("Schedule",
           TRUE,
           private$.activities
         )
-        ts <- as.numeric(igraph::topo_sort(g, "out"))
+        ts <- as.integer(igraph::topo_sort(g, "out"))
         sorted_activity_id <- private$.activities$id[ts]
         topo_order <- order(
           match(private$.relations$from, sorted_activity_id),
@@ -379,14 +240,14 @@ Schedule <- R6::R6Class("Schedule",
       # 5) Calculate topological levels
 
       # Progressive Level
-      private$info$max_level <- 1
+      private$info$max_level <- 1L
       private$.activities$progr_level <- private$info$max_level
       # Forward calculate
       if(self$has_any_relation) {
         for(i in 1:self$nr_relations) {
           from <- private$.relations$i_from[i]
           to <- private$.relations$i_to[i]
-          next_level <- private$.activities$progr_level[from] + 1
+          next_level <- private$.activities$progr_level[from] + 1L
           if(next_level > private$.activities$progr_level[to]) {
             private$.activities$progr_level[to] <- next_level
             if(next_level > private$info$max_level) {
@@ -402,7 +263,7 @@ Schedule <- R6::R6Class("Schedule",
         for(i in self$nr_relations:1) {
           from <- private$.relations$i_from[i]
           to <- private$.relations$i_to[i]
-          prev_level <- private$.activities$regr_level[to] - 1
+          prev_level <- private$.activities$regr_level[to] - 1L
           if(prev_level < private$.activities$regr_level[from]) {
             private$.activities$regr_level[from] <- prev_level
           }
@@ -497,18 +358,18 @@ Schedule <- R6::R6Class("Schedule",
       rela <- private$.relations
 
       # Define milestone
-      private$.activities$milestone <- private$.activities$duration == 0
+      private$.activities$milestone <- private$.activities$duration == 0L
 
       # Init early start and finish values
-      private$.activities$ES <- -Inf
-      private$.activities$EF <- -Inf
+      private$.activities$ES <- -2000000000L
+      private$.activities$EF <- -2000000000L
 
       # arrumarPeriodoDasAtividadesIniciais
-      private$.activities$ES[private$config$starters] <- 0
+      private$.activities$ES[private$config$starters] <- 0L
       private$.activities$EF[private$config$starters] <- private$.activities$duration[private$config$starters]
 
       # Forward calculate
-      if(nrow(rela) > 0) {
+      if(nrow(rela) > 0L) {
         for(i in 1:nrow(rela)) {
           type <- rela$type[i]
           relation_type$forward[[type]](
@@ -523,15 +384,15 @@ Schedule <- R6::R6Class("Schedule",
       private$info$duration <- base::max(private$.activities$EF) - base::min(private$.activities$ES)
 
       # Init late start and finish values
-      private$.activities$LF <- +Inf
-      private$.activities$LS <- +Inf
+      private$.activities$LF <- +2000000000L
+      private$.activities$LS <- +2000000000L
 
       # arrumarPeriodoDasAtividadesFinais
       private$.activities$LF[private$config$ends] <- base::max(private$.activities$EF)
       private$.activities$LS[private$config$ends] <- private$.activities$LF[private$config$ends] - private$.activities$duration[private$config$ends]
 
       # Backward calculate
-      if(nrow(rela) > 0) {
+      if(nrow(rela) > 0L) {
         for(i in nrow(rela):1) {
           type <- rela$type[i]
           relation_type$backward[[type]](
@@ -547,10 +408,10 @@ Schedule <- R6::R6Class("Schedule",
 
       # Calculate free_float
       private$.activities$free_float <- private$.activities$total_float  ## Acho que aqui tem que ser a TOTAL_FLOAT !!!
-      if(nrow(private$.activities) > 0) {
+      if(nrow(private$.activities) > 0L) {
         for(i_from in 1:nrow(private$.activities)) {
           succesors <- rela[rela$i_from == i_from, ]
-          if(nrow(succesors) > 0) {
+          if(nrow(succesors) > 0L) {
             for(j in 1:nrow(succesors)) {
               to <- succesors$i_to[j]
               ff <- private$.activities$ES[to] - private$.activities$EF[i_from]
@@ -565,7 +426,7 @@ Schedule <- R6::R6Class("Schedule",
       }
 
       # Identify critical activity
-      private$.activities$critical <- private$.activities$total_float <= 0
+      private$.activities$critical <- private$.activities$total_float <= 0L
 
       # Identify critical relation
       rela$critical <- private$.activities$critical[rela$i_from] & private$.activities$critical[rela$i_to]
@@ -589,6 +450,8 @@ Schedule <- R6::R6Class("Schedule",
     #'      - gets the title of the project.
     #'
     title = function(value) {
+      .Deprecated("sch_title")
+
       if(missing(value)) {
         return(private$info$title)
       } else {
@@ -606,6 +469,8 @@ Schedule <- R6::R6Class("Schedule",
     #'      - gets the reference of the project.
     #'
     reference = function(value) {
+      .Deprecated("sch_reference")
+
       if(missing(value)) {
         return(private$info$reference)
       } else {
@@ -621,8 +486,10 @@ Schedule <- R6::R6Class("Schedule",
     #'    - Usage: \code{Schedule$has_any_activity}
     #'
     has_any_activity = function(value) {
+      .Deprecated("sch_has_any_activity")
+
       if(missing(value)) {
-        return(self$nr_activities > 0)
+        return(self$nr_activities > 0L)
       }
       stop("Can't set `$has_any_activity`", call. = FALSE)
     },
@@ -632,6 +499,8 @@ Schedule <- R6::R6Class("Schedule",
     #'    - Usage: \code{Schedule$nr_activities}
     #'
     nr_activities = function(value) {
+      .Deprecated("sch_nr_activities")
+
       if(missing(value)) {
         return(private$info$nr_activities)
       }
@@ -677,6 +546,8 @@ Schedule <- R6::R6Class("Schedule",
     #'  - Usage: \code{Schedule$activities}
     #'
     activities = function(value) {
+      .Deprecated("sch_activities")
+
       if(missing(value)) {
         if(self$has_any_activity) {
           return(private$.activities[order(private$.activities$id), ])
@@ -695,6 +566,8 @@ Schedule <- R6::R6Class("Schedule",
     #'    - Usage: \code{Schedule$has_any_relation}
     #'
     has_any_relation = function(value) {
+      .Deprecated("sch_has_any_relation")
+
       if(missing(value)) {
         return(private$info$has_any_relation)
       }
@@ -706,6 +579,8 @@ Schedule <- R6::R6Class("Schedule",
     #'    - Usage: \code{Schedule$nr_relations}
     #'
     nr_relations = function(value) {
+      .Deprecated("sch_nr_relations")
+
       if(missing(value)) {
         return(private$info$nr_relations)
       }
@@ -735,6 +610,8 @@ Schedule <- R6::R6Class("Schedule",
     #'    - Usage: \code{Schedule$relations}
     #'
     relations = function(value) {
+      .Deprecated("sch_relations")
+
       if(missing(value)) {
         return(private$.relations)
       }
@@ -746,6 +623,8 @@ Schedule <- R6::R6Class("Schedule",
     #' An integer value that indicates the duration of a schedule.
     #'
     duration = function(value) {
+      .Deprecated("sch_duration")
+
       if(base::missing(value)) {
         return(private$info$duration)
       }
@@ -799,37 +678,9 @@ Schedule <- R6::R6Class("Schedule",
     #' It must be an integer, less than, equal or greater than zero.
     #' @return A Schedule object with CPM parameters calculated.
     #'
-    #' @examples
-    #' # An empty schedule.
-    #' schedule <- Schedule$new()
-    #' schedule$duration
-    #' schedule$activities
-    #' schedule$relations
-    #'
-    #' # A schedule with activities and relations.
-    #' activities <- data.frame(
-    #'   id        = 1:17,
-    #'   name      = paste("a", as.character(1:17), sep=""),
-    #'   duration  = c(1,2,2,4,3,3,3,2,1,1,2,1,1,1,1,2,1)
-    #' )
-    #'
-    #' relations <- data.frame(
-    #'   from = c(1, 1, 2, 2, 2, 3, 3, 3,  3,  4,  5,  6,
-    #'            7,  8,  9, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15),
-    #'   to   = c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 11,
-    #'            12, 13, 14, 15, 16, 17, 16, 17, 16, 17, 16, 17, 16, 17)
-    #' )
-    #' schedule <- Schedule$new(activities, relations)
-    #' schedule$title <- "Project 1: Cost Information System"
-    #' schedule$reference <- "VANHOUCKE, Mario.
-    #' Integrated project management and control:
-    #'   first comes the theory, then the practice.
-    #'   Gent: Springer, 2014, p. 6"
-    #' schedule$duration
-    #' schedule$activities
-    #' schedule$relations
-    #'
     initialize = function(activities=NULL, relations=NULL) {
+      .Deprecated("sch_new")
+
       exist_activites <- private$is_valid_data_frame(activities)
       exist_relations <- private$is_valid_data_frame(relations)
       if(exist_relations) {
@@ -861,18 +712,9 @@ Schedule <- R6::R6Class("Schedule",
     #' @return A Schedule object with an activity added and
     #' the critical path calculated.
     #'
-    #' @examples
-    #' schedule <- Schedule$new()
-    #' schedule$add_activity(1, "Task 1", 5)
-    #' schedule$add_activity(2, "Task 2", 6)
-    #' schedule$add_activity(3, "Task 3", 8)
-    #' schedule$add_activity(4, "Task 4", 6)
-    #' schedule$add_activity(5, "Task 5", 9)
-    #' schedule$add_activity(6, "Task 6", 3)
-    #' schedule$add_activity(7, "Task 7", 4)
-    #' schedule$duration
-    #' schedule$activities
-    add_activity = function(id, name="", duration=0) {
+    add_activity = function(id, name="", duration = 0L) {
+      .Deprecated("sch_add_activity")
+
       private$assert_activity_id_is_valid(id)
       private$assert_activity_id_does_not_exist(id)
 
@@ -881,18 +723,18 @@ Schedule <- R6::R6Class("Schedule",
       new_activity <- data.frame(
         id        = id,
         name      = ifelse(base::is.null(name), base::paste0("a", id), name),
-        duration  = ifelse(base::is.null(duration), 0, duration),
+        duration  = ifelse(base::is.null(duration), 0L, duration),
         milestone = FALSE,
         critical = FALSE,
-        ES =  -Inf,
-        EF =  -Inf,
-        LS =  +Inf,
-        LF =  +Inf,
-        total_float = 0,
-        free_float = 0,
-        progr_level = -Inf,
-        regr_level = +Inf,
-        topo_float = 0
+        ES =  -2000000000L,
+        EF =  -2000000000L,
+        LS =  +2000000000L,
+        LF =  +2000000000L,
+        total_float = 0L,
+        free_float = 0L,
+        progr_level = -2000000000L,
+        regr_level = +2000000000L,
+        topo_float = 0L
       )
 
       private$.activities <- rbind(old_activities, new_activity)
@@ -912,17 +754,9 @@ Schedule <- R6::R6Class("Schedule",
     #' @param activities A data frame with the activities to be added.
     #' @return A Schedule object with activities added and CPM calculated.
     #'
-    #' @examples
-    #' activities <- data.frame(
-    #'   id        = 1:17,
-    #'   name      = paste("a", as.character(1:17), sep=""),
-    #'   duration  = c(1,2,2,4,3,3,3,2,1,1,2,1,1,1,1,2,1)
-    #' )
-    #' schedule <- Schedule$new()
-    #' schedule$add_activities(activities)
-    #' schedule$duration
-    #' schedule$activities
     add_activities = function(activities) {
+      .Deprecated("sch_add_activities")
+
       if(!private$is_valid_data_frame(activities)) {
         stop("Activities is empty.")
       }
@@ -944,9 +778,9 @@ Schedule <- R6::R6Class("Schedule",
     #' @return A data frame with one line with the activity,
     #' or an error if activity id doesn't exist.
     #'
-    #' @examples
-    #' x <- runif(1)
     get_activity = function(id) {
+      .Deprecated("sch_get_activity")
+
       private$assert_activity_id_exist(id)
       private$.activities[match(id, private$.activities$id), ]
     },
@@ -984,57 +818,9 @@ Schedule <- R6::R6Class("Schedule",
     #' If lag is not defined, it is assumed to be zero.
     #' @return A Schedule object with CPM parameters calculated.
     #'
-    #' @examples
-    #' # First, create an empty schedule
-    #' schedule <- Schedule$new()
-    #' schedule$title <- "Project 3: Old Carriage House Renovation"
-    #' schedule$reference <-
-    #'   "VANHOUCKE, Mario. Integrated project management and control:
-    #'   first comes the theory, then the practice. Gent: Springer, 2014, p. 11"
-    #'
-    #' # Second, add activities to it
-    #' schedule$add_activity(1, "a1" , 2)
-    #' schedule$add_activity(2, "a2" , 2)
-    #' schedule$add_activity(3, "a3" , 4)
-    #' schedule$add_activity(4, "a4" , 3)
-    #' schedule$add_activity(5, "a5" , 4)
-    #' schedule$add_activity(6, "a6" , 1)
-    #' schedule$add_activity(7, "a7" , 1)
-    #' schedule$add_activity(8, "a8" , 1)
-    #' schedule$add_activity(9, "a9" , 1)
-    #' schedule$add_activity(10, "a10", 1)
-    #' schedule$add_activity(11, "a11", 3)
-    #' schedule$add_activity(12, "a12", 2)
-    #' schedule$add_activity(13, "a13", 1)
-    #' schedule$add_activity(14, "a14", 1)
-    #' schedule$add_activity(15, "a15", 2)
-    #' schedule$add_activity(16, "a16", 1)
-    #' schedule$add_activity(17, "a17", 1)
-    #'
-    #' # Finally, add relations to it
-    #' schedule$add_relation( 1, 2)
-    #' schedule$add_relation( 2, 3)
-    #' schedule$add_relation( 3, 4)
-    #' schedule$add_relation( 4, 5)
-    #' schedule$add_relation( 5, 6)
-    #' schedule$add_relation( 6, 7)
-    #' schedule$add_relation( 6, 8)
-    #' schedule$add_relation( 6, 9)
-    #' schedule$add_relation( 7, 10)
-    #' schedule$add_relation( 8, 10)
-    #' schedule$add_relation( 9, 10)
-    #' schedule$add_relation( 10, 11)
-    #' schedule$add_relation( 10, 13)
-    #' schedule$add_relation( 11, 12)
-    #' schedule$add_relation( 12, 15)
-    #' schedule$add_relation( 13, 14)
-    #' schedule$add_relation( 14, 15)
-    #' schedule$add_relation( 15, 16)
-    #' schedule$add_relation( 16, 17)
-    #' schedule$duration
-    #' schedule$activities
-    #' schedule$relations
-    add_relation = function(from, to, type="FS", lag=0) {
+    add_relation = function(from, to, type = "FS", lag = 0L) {
+      .Deprecated("sch_add_relation")
+
       private$assert_activity_id_is_valid(from)
       private$assert_activity_id_exist(from)
 
@@ -1053,15 +839,15 @@ Schedule <- R6::R6Class("Schedule",
         type = type,
         lag = lag,
         critical = FALSE,
-        ord = base::nrow(old_relations) + 1,
-        i_from = NA,
-        i_to = NA
+        ord = base::nrow(old_relations) + 1L,
+        i_from = NA_integer_,
+        i_to = NA_integer_
       )
 
       private$.relations <- base::rbind(old_relations, new_relation)
 
       private$info$nr_relations <- base::nrow(private$.relations)
-      private$info$has_any_relation <- private$info$nr_relations > 0
+      private$info$has_any_relation <- private$info$nr_relations > 0L
 
       ## Topological organization
       private$topological_organization()
@@ -1077,32 +863,9 @@ Schedule <- R6::R6Class("Schedule",
     #' @param relations A data frame with the relations to be added.
     #' @return A Schedule object with relations added and CPM calculated.
     #'
-    #' @examples
-    #' # A schedule with activities and relations.
-    #' activities <- data.frame(
-    #'   id        = 1:17,
-    #'   name      = paste("a", as.character(1:17), sep=""),
-    #'   duration  = c(1,2,2,4,3,3,3,2,1,1,2,1,1,1,1,2,1)
-    #' )
-    #'
-    #' relations <- data.frame(
-    #'   from = c(1, 1, 2, 2, 2, 3, 3, 3,  3,  4,  5,  6,
-    #'            7,  8,  9, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15),
-    #'   to   = c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 11,
-    #'            12, 13, 14, 15, 16, 17, 16, 17, 16, 17, 16, 17, 16, 17)
-    #' )
-    #' schedule <- Schedule$new(activities)
-    #' schedule$title <- "Project 1: Cost Information System"
-    #' schedule$reference <- "VANHOUCKE, Mario.
-    #' Integrated project management and control:
-    #'   first comes the theory, then the practice.
-    #'   Gent: Springer, 2014, p. 6"
-    #' schedule$relations # Empty
-    #'
-    #' schedule$add_relations(relations)
-    #' schedule$relations # Not empty
-    #'
     add_relations = function(relations) {
+      .Deprecated("sch_add_relations")
+
       if(!private$is_valid_data_frame(relations)) {
         stop("Relations is empty.")
       }
@@ -1111,10 +874,13 @@ Schedule <- R6::R6Class("Schedule",
         relations$type <- "FS"
       }
       if(base::is.null(relations$lag)) {
-        relations$lag <- 0
+        relations$lag <- 0L
       }
       relations$critical <- FALSE
       relations$redundant <- FALSE
+      relations$from <- as.integer(relations$from)
+      relations$to <- as.integer(relations$to)
+      relations$lag <- as.integer(relations$lag)
       for(i in 1:base::nrow(relations)) {
         self$add_relation(
           relations$from[i],
@@ -1139,31 +905,9 @@ Schedule <- R6::R6Class("Schedule",
     #' If dir="pred" the relations_id will be the predecessor of the activity.
     #' @return A Schedule object.
     #'
-    #' @examples
-    #' # Create a schedule
-    #' schedule <- Schedule$new()
-    #' schedule$title <- "Fictitious Project Example"
-    #' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-    #'   improving project performance using earned value management.
-    #'   Gent: Springer, 2009, p. 18"
-    #'
-    #' # Add activities and relations to it.
-    #' schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-    #' schedule$add_act_rel(  2, "a2" , 4, c(5))
-    #' schedule$add_act_rel(  3, "a3" , 9, c(10))
-    #' schedule$add_act_rel(  4, "a4" , 1, c(6))
-    #' schedule$add_act_rel(  5, "a5" , 4, c(9))
-    #' schedule$add_act_rel(  6, "a6" , 5, c(7))
-    #' schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-    #' schedule$add_act_rel(  8, "a8" , 7, c(12))
-    #' schedule$add_act_rel(  9, "a9" , 8, c(12))
-    #' schedule$add_act_rel( 10, "a10", 3, c(12))
-    #' schedule$add_act_rel( 11, "a11", 3, c(12))
-    #' schedule$add_act_rel( 12, "a12", 0)
-    #' schedule$duration
-    #' schedule$activities
-    #' schedule$relations
     add_act_rel = function(id, name, duration, relations_id=c(), direction="succ") {
+      .Deprecated("sch_add_activity")
+
       if(direction != "succ" && direction != "pred") {
         msg <- base::paste(
           "Invalid '", direction, "' direction!",
@@ -1175,7 +919,7 @@ Schedule <- R6::R6Class("Schedule",
       self$add_activity(id, name, duration)
 
       n <- length(relations_id)
-      if(n > 0) {
+      if(n > 0L) {
         if(any(duplicated(relations_id))) {
           stop("Must NOT EXISTS duplicated id in relations_id!")
         }
@@ -1183,15 +927,15 @@ Schedule <- R6::R6Class("Schedule",
         #1 Add temp relations
         if(base::is.null(private$config$temp_relations)) {
           private$config$temp_relations <- data.frame(
-            from = numeric(),
-            to   = numeric(),
+            from = integer(),
+            to   = integer(),
             type = character(),
-            lag = numeric(),
+            lag = integer(),
             critical = logical(),
             redundant = logical(),
-            ord = numeric(),
-            i_from = numeric(),
-            i_to = numeric()
+            ord = integer(),
+            i_from = integer(),
+            i_to = integer()
           )
         }
         if(direction == "succ") {
@@ -1202,12 +946,12 @@ Schedule <- R6::R6Class("Schedule",
                 from = id,
                 to   = relations_id[i],
                 type = "FS",
-                lag = 0,
+                lag = 0L,
                 critical = FALSE,
                 redundant = FALSE,
-                ord = NA,
-                i_from = NA,
-                i_to = NA
+                ord = NA_integer_,
+                i_from = NA_integer_,
+                i_to = NA_integer_
               )
             )
           }
@@ -1219,12 +963,12 @@ Schedule <- R6::R6Class("Schedule",
                 from = relations_id[i],
                 to   = id,
                 type = "FS",
-                lag = 0,
+                lag = 0L,
                 critical = FALSE,
                 redundant = FALSE,
-                ord = NA,
-                i_from = NA,
-                i_to = NA
+                ord = NA_integer_,
+                i_from = NA_integer_,
+                i_to = NA_integer_
               )
             )
           }
@@ -1235,10 +979,10 @@ Schedule <- R6::R6Class("Schedule",
 
       temp_n <- ifelse(
         base::is.null(private$config$temp_relations),
-        0,
+        0L,
         nrow(private$config$temp_relations)
       )
-      if(temp_n > 0) {
+      if(temp_n > 0L) {
         private$config$temp_relations$keep <- TRUE
         for(i in 1:temp_n) {
           from <- private$config$temp_relations$from[i]
@@ -1268,13 +1012,6 @@ Schedule <- R6::R6Class("Schedule",
     #' @param ... Variable parameters
     #' @return A String .
     #'
-    #' @examples
-    #' schedule <- Schedule$new()
-    #' schedule$title <- "Fictitious Project Example"
-    #' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-    #'   improving project performance using earned value management.
-    #'   Gent: Springer, 2009, p. 18"
-    #' schedule
     print = function(...) {
       cat("Schedule: \n")
       cat("      Title: ", private$info$title, "\n", sep = "")
@@ -1290,33 +1027,9 @@ Schedule <- R6::R6Class("Schedule",
     #' Activities from this relation will be ignored.
     #' @return A vector whith all activities ids.
     #'
-    #' @examples
-    #'
-    #' # Create a schedule
-    #' schedule <- Schedule$new()
-    #' schedule$title <- "Fictitious Project Example"
-    #' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-    #'   improving project performance using earned value management.
-    #'   Gent: Springer, 2009, p. 18"
-    #'
-    #' # Add activities and relations to it.
-    #' schedule$add_act_rel(  2, "a2" , 4, c(5, 12))
-    #' schedule$add_act_rel(  3, "a3" , 9, c(10))
-    #' schedule$add_act_rel(  4, "a4" , 1, c(6))
-    #' schedule$add_act_rel(  5, "a5" , 4, c(9))
-    #' schedule$add_act_rel(  6, "a6" , 5, c(7))
-    #' schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-    #' schedule$add_act_rel(  8, "a8" , 7, c(12))
-    #' schedule$add_act_rel(  9, "a9" , 8, c(12))
-    #' schedule$add_act_rel( 10, "a10", 3, c(12))
-    #' schedule$add_act_rel( 11, "a11", 3, c(12))
-    #' schedule$add_act_rel( 12, "a12", 0)
-    #'
-    #' schedule$all_successors(2) # 5, 9, 12
-    #' schedule$all_successors(7) # 8, 11, 12
-    #' schedule$all_successors(10) # 12
-    #'
     all_successors = function(id, ign_to=NULL) {
+      .Deprecated("sch_all_successors")
+
       private$assert_activity_id_exist(id)
       if(!base::is.null(ign_to)) {
         private$assert_activity_id_exist(ign_to)
@@ -1335,7 +1048,7 @@ Schedule <- R6::R6Class("Schedule",
           a_list <- c(a_list, temp_relation$to[i])
         }
       }
-      base::rev(base::unique(base::rev(a_list[-1])))
+      base::rev(base::unique(base::rev(a_list[-1L])))
     },
 
     #' @description
@@ -1344,33 +1057,9 @@ Schedule <- R6::R6Class("Schedule",
     #' @param ign_from A relation to be ignored: ign_from -> id.
     #' Activities from this relation will be ignored.
     #' @return A vector with all activities ids.
-    #' @examples
-    #'
-    #' # Create a schedule
-    #' schedule <- Schedule$new()
-    #' schedule$title <- "Fictitious Project Example"
-    #' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-    #'   improving project performance using earned value management.
-    #'   Gent: Springer, 2009, p. 18"
-    #'
-    #' # Add activities and relations to it.
-    #' schedule$add_act_rel(  2, "a2" , 4, c(5, 12))
-    #' schedule$add_act_rel(  3, "a3" , 9, c(10))
-    #' schedule$add_act_rel(  4, "a4" , 1, c(6))
-    #' schedule$add_act_rel(  5, "a5" , 4, c(9))
-    #' schedule$add_act_rel(  6, "a6" , 5, c(7))
-    #' schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-    #' schedule$add_act_rel(  8, "a8" , 7, c(12))
-    #' schedule$add_act_rel(  9, "a9" , 8, c(12))
-    #' schedule$add_act_rel( 10, "a10", 3, c(12))
-    #' schedule$add_act_rel( 11, "a11", 3, c(12))
-    #' schedule$add_act_rel( 12, "a12", 0)
-    #'
-    #' schedule$all_predecessors(2) # nothing
-    #' schedule$all_predecessors(7) # 6, 4
-    #' schedule$all_predecessors(10) # 3
-    #'
     all_predecessors = function(id, ign_from=NULL) {
+      .Deprecated("sch_all_predecessors")
+
       private$assert_activity_id_exist(id)
       if(!base::is.null(ign_from)) {
         private$assert_activity_id_exist(ign_from)
@@ -1389,7 +1078,7 @@ Schedule <- R6::R6Class("Schedule",
           a_list <- c(a_list, temp_relation$from[i])
         }
       }
-      rev(unique(rev(a_list[-1])))
+      rev(unique(rev(a_list[-1L])))
     },
 
     #' @description
@@ -1399,32 +1088,10 @@ Schedule <- R6::R6Class("Schedule",
     #' @param id_to To activity id.
     #' @return A logical \code{TRUE} if an arc is redundant;
     #' \code{FALSE} if it is not.
-    #' @examples
-    #'
-    #' # Create a schedule
-    #' schedule <- Schedule$new()
-    #' schedule$title <- "Fictitious Project Example"
-    #' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-    #'   improving project performance using earned value management.
-    #'   Gent: Springer, 2009, p. 18"
-    #'
-    #' # Add activities and relations to it.
-    #' schedule$add_act_rel(  2, "a2" , 4, c(5, 12))
-    #' schedule$add_act_rel(  3, "a3" , 9, c(10))
-    #' schedule$add_act_rel(  4, "a4" , 1, c(6))
-    #' schedule$add_act_rel(  5, "a5" , 4, c(9))
-    #' schedule$add_act_rel(  6, "a6" , 5, c(7))
-    #' schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-    #' schedule$add_act_rel(  8, "a8" , 7, c(12))
-    #' schedule$add_act_rel(  9, "a9" , 8, c(12))
-    #' schedule$add_act_rel( 10, "a10", 3, c(12))
-    #' schedule$add_act_rel( 11, "a11", 3, c(12))
-    #' schedule$add_act_rel( 12, "a12", 0)
-    #'
-    #' schedule$is_redundant(2, 5)  #FALSE
-    #' schedule$is_redundant(2, 12) #TRUE
     #'
     is_redundant = function(id_from, id_to) {
+      .Deprecated("sch_is_redundant")
+
       private$assert_activity_id_exist(id_from)
       private$assert_activity_id_exist(id_to)
       private$assert_relation_exist(id_from, id_to)
@@ -1439,43 +1106,12 @@ Schedule <- R6::R6Class("Schedule",
     #' @param new_durations A vector with new activities' duration.
     #' @return A Schedule object.
     #'
-    #' @examples
-    #' activities <- data.frame(
-    #'   id        = 1:17,
-    #'   name      = paste("a", as.character(1:17), sep=""),
-    #'   duration  = c(1,1,3,2, 2,2,2,1, 4,5,3,3, 4,5,1,5,2)
-    #' )
-    #'
-    #' relations <- data.frame(
-    #'   from = c(1, 2, 3, 3, 4, 5, 6, 7, 8,  8,  8,
-    #'     8,  8,  9, 10, 11, 12, 13, 13, 14, 14, 15, 15),
-    #'   to   = c(2, 3, 4, 6, 5, 8, 7, 8, 9, 10, 11,
-    #'    12, 13, 14, 14, 14, 14, 14, 15, 16, 17, 16, 17)
-    #' )
-    #'
-    #' schedule <- Schedule$new(activities, relations)
-    #' schedule$title <- "Project 2: Patient Transport System"
-    #' schedule$reference <-
-    #'   "VANHOUCKE, Mario. Integrated project management and control:
-    #'   first comes the theory, then the practice. Gent: Springer, 2014, p. 9"
-    #' #Project duration
-    #' schedule$duration # 25
-    #' #Activities duration
-    #' schedule$activities$duration
-    #'
-    #' # Now, change activities duration
-    #' new_durations <- c(1,2,5, 4,3, 2,1, 5, 3,5,5,3,4, 2,1, 2,4)
-    #' schedule$change_durations(new_durations)
-    #'
-    #' #Project duration
-    #' schedule$duration # 31
-    #' #Activities duration
-    #' schedule$activities$duration
-    #'
     change_durations = function(new_durations) {
+      .Deprecated("sch_change_activities_duration")
+
       # TODO verificar se os tamanhos são os mesmos
       # TODO verificar se não tem nenhum NULL ou NA
-      private$.activities$duration <- new_durations
+      private$.activities$duration <- as.integer(new_durations)
       private$calculate_critical_path()
 
       invisible(self)
@@ -1491,46 +1127,31 @@ Schedule <- R6::R6Class("Schedule",
     #' So, the number of columns is equal to project duration.
     #' @return A matrix where "1" indicates that an activity is in execution.
     #'
-    #' @examples
-    #' activities <- data.frame(
-    #'   id        = c( 1,   2,   3,   4 ),
-    #'   name      = c("A", "B", "C", "D"),
-    #'   duration  = c( 2,   3,   1,   2 )
-    #' )
-    #' relations <- data.frame(
-    #'   from = c(1, 2, 4, 4),
-    #'   to   = c(3, 3, 1, 2)
-    #' )
-    #' schedule <- Schedule$new(activities, relations)
-    #' gantt <- schedule$gantt_matrix()
-    #' gantt
-    #' # What is the effort by time period?
-    #' colSums(gantt) # 1 1 2 2 1 1
-    #' # What is the duration by activities?
-    #' rowSums(gantt) # 2 3 1 2
-    #' # what is the S curve
-    #' cumsum(colSums(gantt))
-    #' plot(cumsum(colSums(gantt)), type="l", lwd=3)
-    #'
     gantt_matrix = function() {
-      if(self$duration == 0) {
+      .Deprecated("sch_gantt_matrix")
+
+      if(self$duration == 0L) {
         stop("There is no Gantt Matrix for a schedule with zero duration!")
       }
       atvs <- private$.activities
-      duration <- self$duration
-      qtdatvs <- self$nr_activities
-      gantt <- base::matrix(base::rep(0, duration * qtdatvs), nrow=qtdatvs)
-      for(i in 1:qtdatvs) {
-        inicio <- atvs$ES[i] + 1
-        termino <- atvs$EF[i]
-        gantt[i, inicio:termino] <- 1
+      iii <- which(atvs$duration > 0L)
+
+      delta <- abs(min(atvs$ES))
+
+      duration <- private$info$duration
+      qtdatvs <- private$info$nr_activities
+      gantt <- base::matrix(base::integer(duration * qtdatvs), nrow = qtdatvs)
+      for (i in iii) {
+        start  <- atvs$ES[i] + delta + 1L
+        finish <- atvs$EF[i] + delta
+        gantt[i, start:finish] <- 1L
       }
       class(gantt) <- base::unique(c("Gantt", class(gantt)))
 
       row.names(gantt) <- atvs$id
-      colnames(gantt) <- 1:duration
+      colnames(gantt) <- (min(atvs$ES) + 1L) : (max(atvs$EF))
 
-      gantt
+      return(gantt)
     },
 
     #' @description
@@ -1540,23 +1161,9 @@ Schedule <- R6::R6Class("Schedule",
     #' \code{gantt_matrix()} before this function.
     #' @return A matrix x, y and weight.
     #'
-    #' @examples
-    #' activities <- data.frame(
-    #'   id        = c( 1,   2,   3,   4 ),
-    #'   name      = c("A", "B", "C", "D"),
-    #'   duration  = c( 2,   3,   1,   2 )
-    #' )
-    #' relations <- data.frame(
-    #'   from = c(1, 2, 4, 4),
-    #'   to   = c(3, 3, 1, 2)
-    #' )
-    #' schedule <- Schedule$new(activities, relations)
-    #' gantt <- schedule$gantt_matrix()
-    #' xyw <- schedule$xy_gantt_matrix()
-    #' xyw
-    #' plot(xyw[, 1:2])
-    #'
-    xy_gantt_matrix = function(gantt=NULL) {
+    xy_gantt_matrix = function(gantt = NULL) {
+      .Deprecated("sch_xy_gantt_matrix")
+
       if(base::is.null(gantt)) {
         gantt <- self$gantt_matrix()
       } else {
@@ -1564,12 +1171,12 @@ Schedule <- R6::R6Class("Schedule",
       }
       qtdatvs <- base::nrow(gantt)
       pdur <- base::ncol(gantt)
-      v <- as.numeric(t(gantt))
-      ii <- which(v > 0) - 1
+      v <- as.integer(t(gantt))
+      ii <- which(v > 0L) - 1L
       y <- base::floor(ii / pdur)
       x <- ii - y * pdur
-      peso <- v[ii + 1]
-      base::matrix(c(x, y + 1, peso), ncol=3)
+      peso <- v[ii + 1L]
+      base::matrix(c(x + 1L, y + 1L, peso), ncol = 3L)
     },
 
 
@@ -1579,39 +1186,17 @@ Schedule <- R6::R6Class("Schedule",
     #' when the network totally serial.
     #' @return A number between 0 and 1, inclusive.
     #'
-    #' @examples
-    #' # Create a schedule
-    #' schedule <- Schedule$new()
-    #' schedule$title <- "Fictitious Project Example"
-    #' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-    #'   improving project performance using earned value management.
-    #'   Gent: Springer, 2009, p. 18"
-    #'
-    #' # Add activities and relations to it.
-    #' schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-    #' schedule$add_act_rel(  2, "a2" , 4, c(5))
-    #' schedule$add_act_rel(  3, "a3" , 9, c(10))
-    #' schedule$add_act_rel(  4, "a4" , 1, c(6))
-    #' schedule$add_act_rel(  5, "a5" , 4, c(9))
-    #' schedule$add_act_rel(  6, "a6" , 5, c(7))
-    #' schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-    #' schedule$add_act_rel(  8, "a8" , 7, c(12))
-    #' schedule$add_act_rel(  9, "a9" , 8, c(12))
-    #' schedule$add_act_rel( 10, "a10", 3, c(12))
-    #' schedule$add_act_rel( 11, "a11", 3, c(12))
-    #' schedule$add_act_rel( 12, "a12", 0)
-    #'
-    #' schedule$topoi_sp()
-    #'
     topoi_sp = function() {
+      .Deprecated("sch_topoi_sp")
+
       max_level <- private$info$max_level
       nr_act <- self$nr_activities
 
-      if(nr_act == 0) {
+      if(nr_act == 0L) {
         return(NA)
       }
 
-      if(nr_act == 1) {
+      if(nr_act == 1L) {
         return(1)
       }
 
@@ -1625,39 +1210,17 @@ Schedule <- R6::R6Class("Schedule",
     #' uniformly distributed.
     #' @return A number between 0 and 1, inclusive.
     #'
-    #' @examples
-    #' # Create a schedule
-    #' schedule <- Schedule$new()
-    #' schedule$title <- "Fictitious Project Example"
-    #' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-    #'   improving project performance using earned value management.
-    #'   Gent: Springer, 2009, p. 18"
-    #'
-    #' # Add activities and relations to it.
-    #' schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-    #' schedule$add_act_rel(  2, "a2" , 4, c(5))
-    #' schedule$add_act_rel(  3, "a3" , 9, c(10))
-    #' schedule$add_act_rel(  4, "a4" , 1, c(6))
-    #' schedule$add_act_rel(  5, "a5" , 4, c(9))
-    #' schedule$add_act_rel(  6, "a6" , 5, c(7))
-    #' schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-    #' schedule$add_act_rel(  8, "a8" , 7, c(12))
-    #' schedule$add_act_rel(  9, "a9" , 8, c(12))
-    #' schedule$add_act_rel( 10, "a10", 3, c(12))
-    #' schedule$add_act_rel( 11, "a11", 3, c(12))
-    #' schedule$add_act_rel( 12, "a12", 0)
-    #'
-    #' schedule$topoi_ad()
-    #'
     topoi_ad = function() {
+      .Deprecated("sch_topoi_ad")
+
       max_level <- private$info$max_level
       nr_act <- self$nr_activities
 
-      if(nr_act == 0) {
+      if(nr_act == 0L) {
         return(NA)
       }
 
-      if(max_level == 1 || max_level == nr_act) {
+      if(max_level == 1L || max_level == nr_act) {
         return(0);
       }
 
@@ -1679,53 +1242,31 @@ Schedule <- R6::R6Class("Schedule",
     #' Otherwise, if LA is equal one, the relation distance are one.
     #' @return A number between 0 and 1, inclusive.
     #'
-    #' @examples
-    #' # Create a schedule
-    #' schedule <- Schedule$new()
-    #' schedule$title <- "Fictitious Project Example"
-    #' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-    #'   improving project performance using earned value management.
-    #'   Gent: Springer, 2009, p. 18"
-    #'
-    #' # Add activities and relations to it.
-    #' schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-    #' schedule$add_act_rel(  2, "a2" , 4, c(5))
-    #' schedule$add_act_rel(  3, "a3" , 9, c(10))
-    #' schedule$add_act_rel(  4, "a4" , 1, c(6))
-    #' schedule$add_act_rel(  5, "a5" , 4, c(9))
-    #' schedule$add_act_rel(  6, "a6" , 5, c(7))
-    #' schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-    #' schedule$add_act_rel(  8, "a8" , 7, c(12))
-    #' schedule$add_act_rel(  9, "a9" , 8, c(12))
-    #' schedule$add_act_rel( 10, "a10", 3, c(12))
-    #' schedule$add_act_rel( 11, "a11", 3, c(12))
-    #' schedule$add_act_rel( 12, "a12", 0)
-    #'
-    #' schedule$topoi_la()
-    #'
     topoi_la = function() {
+      .Deprecated("sch_topoi_la")
+
       max_level <- private$info$max_level
       nr_act <- self$nr_activities
 
-      if(nr_act == 0) {
+      if(nr_act == 0L) {
         return(NA)
       }
 
       # Activities quantities by level: they are called width, width by level
-      wi <- as.numeric(base::table(private$.activities$progr_level))
+      wi <- as.integer(base::table(private$.activities$progr_level))
 
-      D <- base::sum(wi[-base::length(wi)] * wi[-1])
+      D <- base::sum(wi[-base::length(wi)] * wi[-1L])
 
-      if(D == nr_act - wi[1]) {
+      if(D == nr_act - wi[1L]) {
         return(1)
       }
 
-      len <- 1
+      len <- 1L
       levels_from <- private$.activities$progr_level[private$.relations$i_from]
       levels_to <- private$.activities$progr_level[private$.relations$i_to]
       arcs_qty <- base::sum(levels_to - levels_from == len)
 
-      (arcs_qty - nr_act + wi[1]) / (D - nr_act + wi[1])
+      (arcs_qty - nr_act + wi[1L]) / (D - nr_act + wi[1L])
     },
 
     #' @description **TF Topological Float Indicator:**
@@ -1735,39 +1276,17 @@ Schedule <- R6::R6Class("Schedule",
     #' and they be shift without affecting other activities.
     #' @return A number between 0 and 1, inclusive.
     #'
-    #' @examples
-    #' # Create a schedule
-    #' schedule <- Schedule$new()
-    #' schedule$title <- "Fictitious Project Example"
-    #' schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-    #'   improving project performance using earned value management.
-    #'   Gent: Springer, 2009, p. 18"
-    #'
-    #' # Add activities and relations to it.
-    #' schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-    #' schedule$add_act_rel(  2, "a2" , 4, c(5))
-    #' schedule$add_act_rel(  3, "a3" , 9, c(10))
-    #' schedule$add_act_rel(  4, "a4" , 1, c(6))
-    #' schedule$add_act_rel(  5, "a5" , 4, c(9))
-    #' schedule$add_act_rel(  6, "a6" , 5, c(7))
-    #' schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-    #' schedule$add_act_rel(  8, "a8" , 7, c(12))
-    #' schedule$add_act_rel(  9, "a9" , 8, c(12))
-    #' schedule$add_act_rel( 10, "a10", 3, c(12))
-    #' schedule$add_act_rel( 11, "a11", 3, c(12))
-    #' schedule$add_act_rel( 12, "a12", 0)
-    #'
-    #' schedule$topoi_tf()
-    #'
     topoi_tf = function() {
+      .Deprecated("sch_topoi_tf")
+
       max_level <- private$info$max_level
       nr_act <- self$nr_activities
 
-      if(nr_act == 0) {
+      if(nr_act == 0L) {
         return(NA)
       }
 
-      if(max_level == 1 || max_level == nr_act) {
+      if(max_level == 1L || max_level == nr_act) {
         return(0);
       }
 

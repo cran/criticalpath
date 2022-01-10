@@ -8,339 +8,364 @@ knitr::opts_chunk$set(
 library(criticalpath)
 
 ## -----------------------------------------------------------------------------
-# Activities added one by one
-schedule <- Schedule$new()
-schedule$add_activity(1, "Task 1", 5)
-schedule$add_activity(2, "Task 2", 6)
-schedule$add_activity(3, "Task 3", 8)
-schedule$add_activity(4, "Task 4", 6)
-schedule$add_activity(5, "Task 5", 9)
-schedule$add_activity(6, "Task 6", 3)
-schedule$add_activity(7, "Task 7", 4)
-schedule$duration
-schedule$activities
+sch <- sch_new() %>% 
+  sch_title("Project 1: Cost Information System") %>% 
+  sch_reference("VANHOUCKE, Mario.
+    Integrated project management and control:
+    first comes the theory, then the practice.
+    Gent: Springer, 2014, p. 6") %>% 
+  sch_add_activities(
+    id        = 1:17,
+    name      = paste("a", as.character(1:17), sep=""),
+    duration  = c(1L,2L,2L,4L,3L,3L,3L,2L,1L,1L,2L,1L,1L,1L,1L,2L,1L)
+  ) %>% 
+  sch_add_relations(
+  from = c(1L, 1L, 2L, 2L, 2L, 3L, 3L, 3L,  3L,  4L,  5L,  6L,
+           7L,  8L,  9L, 10L, 11L, 11L, 12L, 12L, 13L, 13L, 14L, 14L, 15L, 15L),
+  to   = c(2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 11L, 11L,
+           12L, 13L, 14L, 15L, 16L, 17L, 16L, 17L, 16L, 17L, 16L, 17L, 16L, 17L)
+  ) %>% 
+  sch_plan()
 
-# Activities add once for all
-activities <- data.frame(
-  id        = 1:17,
-  name      = paste("a", as.character(1:17), sep=""),
-  duration  = c(1,2,2,4,3,3,3,2,1,1,2,1,1,1,1,2,1)
-)
-schedule <- Schedule$new()
-schedule$add_activities(activities)
-schedule$duration
-schedule$activities
-
+sch_duration(sch)
+sch_activities(sch)
+sch_relations(sch)
 
 ## -----------------------------------------------------------------------------
-# First, create an empty schedule
-schedule <- Schedule$new()
-schedule$title <- "Project 3: Old Carriage House Renovation"
-schedule$reference <-
+sch <- sch_new() %>% 
+  sch_title("Project 3: Old Carriage House Renovation") %>% 
+  sch_reference(
   "VANHOUCKE, Mario. Integrated project management and control:
-  first comes the theory, then the practice. Gent: Springer, 2014, p. 11"
+  first comes the theory, then the practice. Gent: Springer, 2014, p. 11") %>% 
+  sch_add_activity( 1L, "a1" , 2L) %>% 
+  sch_add_activity( 2L, "a2" , 2L) %>% 
+  sch_add_activity( 3L, "a3" , 4L) %>% 
+  sch_add_activity( 4L, "a4" , 3L) %>% 
+  sch_add_activity( 5L, "a5" , 4L) %>% 
+  sch_add_activity( 6L, "a6" , 1L) %>% 
+  sch_add_activity( 7L, "a7" , 1L) %>% 
+  sch_add_activity( 8L, "a8" , 1L) %>% 
+  sch_add_activity( 9L, "a9" , 1L) %>% 
+  sch_add_activity(10L, "a10", 1L) %>% 
+  sch_add_activity(11L, "a11", 3L) %>% 
+  sch_add_activity(12L, "a12", 2L) %>% 
+  sch_add_activity(13L, "a13", 1L) %>% 
+  sch_add_activity(14L, "a14", 1L) %>% 
+  sch_add_activity(15L, "a15", 2L) %>% 
+  sch_add_activity(16L, "a16", 1L) %>% 
+  sch_add_activity(17L, "a17", 1L) %>% 
+  sch_add_relation( 1L,  2L) %>% 
+  sch_add_relation( 2L,  3L) %>% 
+  sch_add_relation( 3L,  4L) %>% 
+  sch_add_relation( 4L,  5L) %>% 
+  sch_add_relation( 5L,  6L) %>% 
+  sch_add_relation( 6L,  7L) %>% 
+  sch_add_relation( 6L,  8L) %>% 
+  sch_add_relation( 6L,  9L) %>% 
+  sch_add_relation( 7L, 10L) %>% 
+  sch_add_relation( 8L, 10L) %>% 
+  sch_add_relation( 9L, 10L) %>% 
+  sch_add_relation(10L, 11L) %>% 
+  sch_add_relation(10L, 13L) %>% 
+  sch_add_relation(11L, 12L) %>% 
+  sch_add_relation(12L, 15L) %>% 
+  sch_add_relation(13L, 14L) %>% 
+  sch_add_relation(14L, 15L) %>% 
+  sch_add_relation(15L, 16L) %>% 
+  sch_add_relation(16L, 17L) %>% 
+  sch_plan()
 
-# Second, add activities to it
-schedule$add_activity(1, "a1" , 2)
-schedule$add_activity(2, "a2" , 2)
-schedule$add_activity(3, "a3" , 4)
-schedule$add_activity(4, "a4" , 3)
-schedule$add_activity(5, "a5" , 4)
-schedule$add_activity(6, "a6" , 1)
-schedule$add_activity(7, "a7" , 1)
-schedule$add_activity(8, "a8" , 1)
-schedule$add_activity(9, "a9" , 1)
-schedule$add_activity(10, "a10", 1)
-schedule$add_activity(11, "a11", 3)
-schedule$add_activity(12, "a12", 2)
-schedule$add_activity(13, "a13", 1)
-schedule$add_activity(14, "a14", 1)
-schedule$add_activity(15, "a15", 2)
-schedule$add_activity(16, "a16", 1)
-schedule$add_activity(17, "a17", 1)
-
-# Finaly, add relations to it
-schedule$add_relation( 1, 2)
-schedule$add_relation( 2, 3)
-schedule$add_relation( 3, 4)
-schedule$add_relation( 4, 5)
-schedule$add_relation( 5, 6)
-schedule$add_relation( 6, 7)
-schedule$add_relation( 6, 8)
-schedule$add_relation( 6, 9)
-schedule$add_relation( 7, 10)
-schedule$add_relation( 8, 10)
-schedule$add_relation( 9, 10)
-schedule$add_relation( 10, 11)
-schedule$add_relation( 10, 13)
-schedule$add_relation( 11, 12)
-schedule$add_relation( 12, 15)
-schedule$add_relation( 13, 14)
-schedule$add_relation( 14, 15)
-schedule$add_relation( 15, 16)
-schedule$add_relation( 16, 17)
-schedule$duration
-schedule$activities
-schedule$relations
+sch_duration(sch)
+sch_activities(sch)
+sch_relations(sch)
 
 ## -----------------------------------------------------------------------------
 # Create a schedule
-schedule <- Schedule$new()
-schedule$title <- "Fictitious Project Example"
-schedule$reference <- "VANHOUCKE, Mario. Measuring time:
+sch <- sch_new() %>% 
+  sch_title("Fictitious Project Example") %>% 
+  sch_reference("VANHOUCKE, Mario. Measuring time:
   improving project performance using earned value management.
-  Gent: Springer, 2009, p. 18"
+  Gent: Springer, 2009, p. 18") %>% 
+  sch_add_activity( 1L, "a1" , 0L,  2L,3L,4L) %>% 
+  sch_add_activity( 2L, "a2" , 4L,  5L) %>% 
+  sch_add_activity( 3L, "a3" , 9L, 10L) %>% 
+  sch_add_activity( 4L, "a4" , 1L,  6L) %>% 
+  sch_add_activity( 5L, "a5" , 4L,  9L) %>% 
+  sch_add_activity( 6L, "a6" , 5L,  7L) %>% 
+  sch_add_activity( 7L, "a7" , 1L,  8L,11L) %>% 
+  sch_add_activity( 8L, "a8" , 7L, 12L) %>% 
+  sch_add_activity( 9L, "a9" , 8L, 12L) %>% 
+  sch_add_activity(10L, "a10", 3L, 12L) %>% 
+  sch_add_activity(11L, "a11", 3L, 12L) %>% 
+  sch_add_activity(12L, "a12", 0L) %>% 
+  sch_plan()
 
-# Add activities and relations to it.
-schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-schedule$add_act_rel(  2, "a2" , 4, c(5))
-schedule$add_act_rel(  3, "a3" , 9, c(10))
-schedule$add_act_rel(  4, "a4" , 1, c(6))
-schedule$add_act_rel(  5, "a5" , 4, c(9))
-schedule$add_act_rel(  6, "a6" , 5, c(7))
-schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-schedule$add_act_rel(  8, "a8" , 7, c(12))
-schedule$add_act_rel(  9, "a9" , 8, c(12))
-schedule$add_act_rel( 10, "a10", 3, c(12))
-schedule$add_act_rel( 11, "a11", 3, c(12))
-schedule$add_act_rel( 12, "a12", 0)
-schedule$duration
-schedule$activities
-schedule$relations
+sch_duration(sch)
+sch_activities(sch)
+sch_relations(sch)
 
 ## -----------------------------------------------------------------------------
-
-# An empty schedule.
-schedule <- Schedule$new()
-schedule$duration
-schedule$activities
-schedule$relations
-
-# A schedule with activities and relations.
-activities <- data.frame(
-  id        = 1:17,
-  name      = paste("a", as.character(1:17), sep=""),
-  duration  = c(1,2,2,4,3,3,3,2,1,1,2,1,1,1,1,2,1)
-)
-
-relations <- data.frame(
-  from = c(1, 1, 2, 2, 2, 3, 3, 3,  3,  4,  5,  6,
-           7,  8,  9, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15),
-  to   = c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 11,
-           12, 13, 14, 15, 16, 17, 16, 17, 16, 17, 16, 17, 16, 17)
-)
-schedule <- Schedule$new(activities, relations)
-schedule$title <- "Project 1: Cost Information System"
-schedule$reference <- "VANHOUCKE, Mario.
-Integrated project management and control:
-  first comes the theory, then the practice.
-  Gent: Springer, 2014, p. 6"
-schedule$duration
-schedule$activities
-schedule$relations
+# Activities added one by one
+sch <- sch_new() %>% 
+  sch_add_activity(1L, "Task 1", 5L) %>% 
+  sch_add_activity(2L, "Task 2", 6L) %>% 
+  sch_add_activity(3L, "Task 3", 8L) %>% 
+  sch_add_activity(4L, "Task 4", 6L) %>% 
+  sch_add_activity(5L, "Task 5", 9L) %>% 
+  sch_add_activity(6L, "Task 6", 3L) %>% 
+  sch_add_activity(7L, "Task 7", 4L) %>% 
+  sch_plan()
+sch_duration(sch)
+sch_activities(sch)
 
 ## -----------------------------------------------------------------------------
 # Create a schedule
-schedule <- Schedule$new()
-schedule$title <- "Fictitious Project Example"
-schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-  improving project performance using earned value management.
-  Gent: Springer, 2009, p. 18"
-
+sch <- sch_new() %>% 
+  sch_title("Fictitious Project Example") %>% 
+  sch_reference("VANHOUCKE, Mario. Measuring time:
+    improving project performance using earned value management.
+    Gent: Springer, 2009, p. 18") %>% 
 # Add activities and relations to it.
-schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-schedule$add_act_rel(  2, "a2" , 4, c(5))
-schedule$add_act_rel(  3, "a3" , 9, c(10))
-schedule$add_act_rel(  4, "a4" , 1, c(6))
-schedule$add_act_rel(  5, "a5" , 4, c(9))
-schedule$add_act_rel(  6, "a6" , 5, c(7))
-schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-schedule$add_act_rel(  8, "a8" , 7, c(12))
-schedule$add_act_rel(  9, "a9" , 8, c(12))
-schedule$add_act_rel( 10, "a10", 3, c(12))
-schedule$add_act_rel( 11, "a11", 3, c(12))
-schedule$add_act_rel( 12, "a12", 0)
-schedule$title
-schedule$reference
-schedule$duration
+  sch_add_activity(  1L, "a1" , 0L,  2L,3L,4L) %>% 
+  sch_add_activity(  2L, "a2" , 4L,  5L) %>% 
+  sch_add_activity(  3L, "a3" , 9L,  10L) %>% 
+  sch_add_activity(  4L, "a4" , 1L,  6L) %>% 
+  sch_add_activity(  5L, "a5" , 4L,  9L) %>% 
+  sch_add_activity(  6L, "a6" , 5L,  7L) %>% 
+  sch_add_activity(  7L, "a7" , 1L,  8L,11L) %>% 
+  sch_add_activity(  8L, "a8" , 7L, 12L) %>% 
+  sch_add_activity(  9L, "a9" , 8L, 12L) %>% 
+  sch_add_activity( 10L, "a10", 3L, 12L) %>% 
+  sch_add_activity( 11L, "a11", 3L, 12L) %>% 
+  sch_add_activity( 12L, "a12", 0L) %>% 
+  sch_plan()
+sch_title(sch)
+sch_reference(sch) %>% cat()
+sch_duration(sch)
 
 ## -----------------------------------------------------------------------------
 # Create a schedule
-schedule <- Schedule$new()
-schedule$title <- "Fictitious Project Example"
-schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-  improving project performance using earned value management.
-  Gent: Springer, 2009, p. 18"
+sch <- sch_new() %>% 
+  sch_title("Fictitious Project Example") %>% 
+  sch_reference("VANHOUCKE, Mario. Measuring time:
+    improving project performance using earned value management.
+    Gent: Springer, 2009, p. 18") 
 
-schedule$has_any_activity  # FALSE
-schedule$nr_activities     # 0
+sch_has_any_activity(sch)  # FALSE
+sch_nr_activities(sch)     # 0
 
 # Add activities and relations to it.
-schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-schedule$add_act_rel(  2, "a2" , 4, c(5))
-schedule$add_act_rel(  3, "a3" , 9, c(10))
-schedule$add_act_rel(  4, "a4" , 1, c(6))
-schedule$add_act_rel(  5, "a5" , 4, c(9))
-schedule$add_act_rel(  6, "a6" , 5, c(7))
-schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-schedule$add_act_rel(  8, "a8" , 7, c(12))
-schedule$add_act_rel(  9, "a9" , 8, c(12))
-schedule$add_act_rel( 10, "a10", 3, c(12))
-schedule$add_act_rel( 11, "a11", 3, c(12))
-schedule$add_act_rel( 12, "a12", 0)
+sch %<>% 
+  sch_add_activity(  1L, "a1" , 0L,  2L,3L,4L) %>% 
+  sch_add_activity(  2L, "a2" , 4L,  5L) %>% 
+  sch_add_activity(  3L, "a3" , 9L,  10L) %>% 
+  sch_add_activity(  4L, "a4" , 1L,  6L) %>% 
+  sch_add_activity(  5L, "a5" , 4L,  9L) %>% 
+  sch_add_activity(  6L, "a6" , 5L,  7L) %>% 
+  sch_add_activity(  7L, "a7" , 1L,  8L,11L) %>% 
+  sch_add_activity(  8L, "a8" , 7L, 12L) %>% 
+  sch_add_activity(  9L, "a9" , 8L, 12L) %>% 
+  sch_add_activity( 10L, "a10", 3L, 12L) %>% 
+  sch_add_activity( 11L, "a11", 3L, 12L) %>% 
+  sch_add_activity( 12L, "a12", 0L) %>% 
+  sch_plan()
 
-schedule$has_any_activity  # TRUE
-schedule$nr_activities     # 12
+sch_has_any_activity(sch)  # TRUE
+sch_nr_activities(sch)     # 12
 
-schedule$get_activity(10)
-schedule$activities
+sch_get_activity(sch, 10L)
+sch_activities(sch)
 
 ## -----------------------------------------------------------------------------
-activities <- data.frame(
-  id        = c( 1,   2,   3,   4 ),
-  name      = c("A", "B", "C", "D"),
-  duration  = c( 2,   3,   1,   2 )
-)
-relations <- data.frame(
-  from = c(1, 2, 4, 4),
-  to   = c(3, 3, 1, 2)
-)
-schedule <- Schedule$new(activities, relations)
-schedule$title <- "A project"
-schedule$reference <- "From criticalpath"
-gantt <- schedule$gantt_matrix()
+sch <- sch_new() %>% 
+  sch_title("A project") %>%
+  sch_reference("From criticalpath") %>% 
+  sch_add_activities(
+    id        = c( 1L,   2L,   3L,   4L ),
+    name      = c("A", "B", "C", "D"),
+    duration  = c( 2L,   3L,   1L,   2L )
+  ) %>% 
+  sch_add_relations(
+    from = c(1L, 2L, 4L, 4L),
+    to   = c(3L, 3L, 1L, 2L)
+  ) %>% 
+  sch_plan()
+
+gantt <- sch_gantt_matrix(sch)
+
 gantt
+
 # What is the effort by time period?
 colSums(gantt) # 1 1 2 2 1 1
+
 # What is the duration by activities?
 rowSums(gantt) # 2 3 1 2
+
 # what is the S curve
 cumsum(colSums(gantt))
 plot(cumsum(colSums(gantt)), type="l", lwd=3)
-xyw <- schedule$xy_gantt_matrix()
+xyw <- sch_xy_gantt_matrix(sch)
 xyw
 plot(xyw[, 1:2])
 
 ## -----------------------------------------------------------------------------
-activities <- data.frame(
-  id        = 1:17,
-  name      = paste("a", as.character(1:17), sep=""),
-  duration  = c(1,1,3,2, 2,2,2,1, 4,5,3,3, 4,5,1,5,2)
-)
-
-relations <- data.frame(
-  from = c(1, 2, 3, 3, 4, 5, 6, 7, 8,  8,  8,
-    8,  8,  9, 10, 11, 12, 13, 13, 14, 14, 15, 15),
-  to   = c(2, 3, 4, 6, 5, 8, 7, 8, 9, 10, 11,
-   12, 13, 14, 14, 14, 14, 14, 15, 16, 17, 16, 17)
-)
-
-schedule <- Schedule$new(activities, relations)
-schedule$title <- "Project 2: Patient Transport System"
-schedule$reference <-
+sch <- sch_new() %>% 
+  sch_title("Project 2: Patient Transport System") %>% 
+  sch_reference(
   "VANHOUCKE, Mario. Integrated project management and control:
-  first comes the theory, then the practice. Gent: Springer, 2014, p. 9"
+  first comes the theory, then the practice. Gent: Springer, 2014, p. 9") %>% 
+  sch_add_activities(
+    id        = 1:17,
+    name      = paste("a", as.character(1:17), sep=""),
+    duration  = c(1L,1L,3L,2L, 2L,2L,2L,1L, 4L,5L,3L,3L, 4L,5L,1L,5L,2L)
+  ) %>% 
+  sch_add_relations(
+    from = c(1L, 2L, 3L, 3L, 4L, 5L, 6L, 7L, 8L,  8L,  8L,
+      8L,  8L,  9L, 10L, 11L, 12L, 13L, 13L, 14L, 14L, 15L, 15L),
+    to   = c(2L, 3L, 4L, 6L, 5L, 8L, 7L, 8L, 9L, 10L, 11L,
+     12L, 13L, 14L, 14L, 14L, 14L, 14L, 15L, 16L, 17L, 16L, 17L)
+  ) %>% 
+  sch_plan()
+
 #Project duration
-schedule$duration # 25
-#Activities duration
-schedule$activities$duration
+sch_duration(sch) # 25
 
-new_durations <- c(1,2,5, 4,3, 2,1, 5, 3,5,5,3,4, 2,1, 2,4)
-schedule$change_durations(new_durations)
+#Activities duration
+sch_activities(sch)$duration
+
+new_durations <- c(1L,2L,5L, 4L,3L, 2L,1L, 5L, 3L,5L,5L,3L,4L, 2L,1L, 2L,4L)
+sch %<>% 
+  sch_change_activities_duration(new_durations)
 
 #Project duration
-schedule$duration # 31
+sch_duration(sch) # 31
 #Activities duration
-schedule$activities$duration
+sch_activities(sch)$duration
+
+
+## -----------------------------------------------------------------------------
+n <- sch %>% sch_nr_activities()
+set.seed(45678)
+i <- sample(n)
+
+another_schedule <- sch_new() %>% 
+  sch_add_activities(
+    id        = sch_activities(sch)$id[i],
+    name      = sch_activities(sch)$name[i],
+    duration  = sch_activities(sch)$duration[i]
+  ) %>%
+  sch_add_relations(
+    from = c(1L, 2L, 3L, 3L, 4L, 5L, 6L, 7L, 8L,  8L,  8L,
+             8L,  8L,  9L, 10L, 11L, 12L, 13L, 13L, 14L, 14L, 15L, 15L),
+    to   = c(2L, 3L, 4L, 6L, 5L, 8L, 7L, 8L, 9L, 10L, 11L,
+             12L, 13L, 14L, 14L, 14L, 14L, 14L, 15L, 16L, 17L, 16L, 17L)
+  ) %>%
+  sch_plan()
+
+
+another_schedule %<>% sch_change_activities_duration(new_durations[i])
+# Second schedule.
+sch_duration(another_schedule)
+
+# First schedule.
+sch_duration(sch)
+
+## -----------------------------------------------------------------------------
+# Create a schedule
+sch <- sch_new() %>% 
+  sch_title("Fictitious Project Example") %>% 
+  sch_reference("VANHOUCKE, Mario. Measuring time:
+  improving project performance using earned value management.
+  Gent: Springer, 2009, p. 18")
+
+sch_has_any_relation(sch)  # FALSE
+sch_nr_relations(sch)      # 0
+
+sch %<>% 
+  sch_add_activity( 1L, "a1" , 0L,  2L,3L,4L) %>% 
+  sch_add_activity( 2L, "a2" , 4L,  5L) %>% 
+  sch_add_activity( 3L, "a3" , 9L, 10L) %>% 
+  sch_add_activity( 4L, "a4" , 1L,  6L) %>% 
+  sch_add_activity( 5L, "a5" , 4L,  9L) %>% 
+  sch_add_activity( 6L, "a6" , 5L,  7L) %>% 
+  sch_add_activity( 7L, "a7" , 1L,  8L,11L) %>% 
+  sch_add_activity( 8L, "a8" , 7L, 12L) %>% 
+  sch_add_activity( 9L, "a9" , 8L, 12L) %>% 
+  sch_add_activity(10L, "a10", 3L, 12L) %>% 
+  sch_add_activity(11L, "a11", 3L, 12L) %>% 
+  sch_add_activity(12L, "a12", 0L) %>% 
+  sch_plan()
+
+
+sch_has_any_relation(sch)  # TRUE
+sch_nr_relations(sch)      # 14
+
+sch_relations(sch)
+
+## -----------------------------------------------------------------------------
+# Create a schedule
+sch <- sch_new() %>% 
+  sch_title("Fictitious Project Example") %>% 
+  sch_reference("VANHOUCKE, Mario. Measuring time:
+    improving project performance using earned value management.
+    Gent: Springer, 2009, p. 18") %>% 
+  sch_add_activity( 2L, "a2" , 4L,  5L, 12L) %>% 
+  sch_add_activity( 3L, "a3" , 9L, 10L) %>% 
+  sch_add_activity( 4L, "a4" , 1L,  6L) %>% 
+  sch_add_activity( 5L, "a5" , 4L,  9L) %>% 
+  sch_add_activity( 6L, "a6" , 5L,  7L) %>% 
+  sch_add_activity( 7L, "a7" , 1L,  8L,11L) %>% 
+  sch_add_activity( 8L, "a8" , 7L, 12L) %>% 
+  sch_add_activity( 9L, "a9" , 8L, 12L) %>% 
+  sch_add_activity(10L, "a10", 3L, 12L) %>% 
+  sch_add_activity(11L, "a11", 3L, 12L) %>% 
+  sch_add_activity(12L, "a12", 0L) %>% 
+  sch_plan()
+
+sch_all_successors(sch, 2) # 5, 9, 12
+sch_all_successors(sch, 7) # 8, 11, 12
+sch_all_successors(sch, 10) # 12
+
+sch_successors(sch, 2) # 5, 12
+sch_successors(sch, 7) # 8, 11
+sch_successors(sch, 10) # 12
+
+sch_all_predecessors(sch, 2) # nothing
+sch_all_predecessors(sch, 7) # 6, 4
+sch_all_predecessors(sch, 10) # 3
+
+sch_predecessors(sch, 2) # nothing
+sch_predecessors(sch, 7) # 6
+sch_predecessors(sch, 10) # 3
+
+sch_is_redundant(sch, 2, 5)  #FALSE
+sch_is_redundant(sch, 2, 12) #TRUE
 
 
 ## -----------------------------------------------------------------------------
 # Create a schedule
-schedule <- Schedule$new()
-schedule$title <- "Fictitious Project Example"
-schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-  improving project performance using earned value management.
-  Gent: Springer, 2009, p. 18"
+sch <- sch_new() %>% 
+  sch_title("Fictitious Project Example") %>%
+  sch_reference("VANHOUCKE, Mario. Measuring time:
+    improving project performance using earned value management.
+    Gent: Springer, 2009, p. 18") %>% 
+  # Add activities and relations to it.
+  sch_add_activity( 1L, "a1" , 0L,  2L,3L,4L) %>% 
+  sch_add_activity( 2L, "a2" , 4L,  5L) %>% 
+  sch_add_activity( 3L, "a3" , 9L, 10L) %>% 
+  sch_add_activity( 4L, "a4" , 1L,  6L) %>% 
+  sch_add_activity( 5L, "a5" , 4L,  9L) %>% 
+  sch_add_activity( 6L, "a6" , 5L,  7L) %>% 
+  sch_add_activity( 7L, "a7" , 1L,  8L,11L) %>% 
+  sch_add_activity( 8L, "a8" , 7L, 12L) %>% 
+  sch_add_activity( 9L, "a9" , 8L, 12L) %>% 
+  sch_add_activity(10L, "a10", 3L, 12L) %>% 
+  sch_add_activity(11L, "a11", 3L, 12L) %>% 
+  sch_add_activity(12L, "a12", 0L) %>% 
+  sch_plan()
 
-schedule$has_any_relation  # FALSE
-schedule$nr_relations      # 0
-
-# Add activities and relations to it.
-schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-schedule$add_act_rel(  2, "a2" , 4, c(5))
-schedule$add_act_rel(  3, "a3" , 9, c(10))
-schedule$add_act_rel(  4, "a4" , 1, c(6))
-schedule$add_act_rel(  5, "a5" , 4, c(9))
-schedule$add_act_rel(  6, "a6" , 5, c(7))
-schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-schedule$add_act_rel(  8, "a8" , 7, c(12))
-schedule$add_act_rel(  9, "a9" , 8, c(12))
-schedule$add_act_rel( 10, "a10", 3, c(12))
-schedule$add_act_rel( 11, "a11", 3, c(12))
-schedule$add_act_rel( 12, "a12", 0)
-
-schedule$has_any_relation  # TRUE
-schedule$nr_relations      # 14
-
-schedule$relations
-
-## -----------------------------------------------------------------------------
-# Create a schedule
-schedule <- Schedule$new()
-schedule$title <- "Fictitious Project Example"
-schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-  improving project performance using earned value management.
-  Gent: Springer, 2009, p. 18"
-
-# Add activities and relations to it.
-schedule$add_act_rel(  2, "a2" , 4, c(5, 12))
-schedule$add_act_rel(  3, "a3" , 9, c(10))
-schedule$add_act_rel(  4, "a4" , 1, c(6))
-schedule$add_act_rel(  5, "a5" , 4, c(9))
-schedule$add_act_rel(  6, "a6" , 5, c(7))
-schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-schedule$add_act_rel(  8, "a8" , 7, c(12))
-schedule$add_act_rel(  9, "a9" , 8, c(12))
-schedule$add_act_rel( 10, "a10", 3, c(12))
-schedule$add_act_rel( 11, "a11", 3, c(12))
-schedule$add_act_rel( 12, "a12", 0)
-
-schedule$all_successors(2) # 5, 9, 12
-schedule$all_successors(7) # 8, 11, 12
-schedule$all_successors(10) # 12
-
-schedule$all_predecessors(2) # nothing
-schedule$all_predecessors(7) # 6, 4
-schedule$all_predecessors(10) # 3
-
-schedule$is_redundant(2, 5)  #FALSE
-schedule$is_redundant(2, 12) #TRUE
-
-
-## -----------------------------------------------------------------------------
-# Create a schedule
-schedule <- Schedule$new()
-schedule$title <- "Fictitious Project Example"
-schedule$reference <- "VANHOUCKE, Mario. Measuring time:
-  improving project performance using earned value management.
-  Gent: Springer, 2009, p. 18"
-
-# Add activities and relations to it.
-schedule$add_act_rel(  1, "a1" , 0, c(2,3,4))
-schedule$add_act_rel(  2, "a2" , 4, c(5))
-schedule$add_act_rel(  3, "a3" , 9, c(10))
-schedule$add_act_rel(  4, "a4" , 1, c(6))
-schedule$add_act_rel(  5, "a5" , 4, c(9))
-schedule$add_act_rel(  6, "a6" , 5, c(7))
-schedule$add_act_rel(  7, "a7" , 1, c(8,11))
-schedule$add_act_rel(  8, "a8" , 7, c(12))
-schedule$add_act_rel(  9, "a9" , 8, c(12))
-schedule$add_act_rel( 10, "a10", 3, c(12))
-schedule$add_act_rel( 11, "a11", 3, c(12))
-schedule$add_act_rel( 12, "a12", 0)
-
-schedule$topoi_sp()
-schedule$topoi_ad()
-schedule$topoi_la()
-schedule$topoi_tf()
+sch_topoi_sp(sch)
+sch_topoi_ad(sch)
+sch_topoi_la(sch)
+sch_topoi_tf(sch)
 
