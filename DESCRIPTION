@@ -1,6 +1,6 @@
 Package: criticalpath
 Title: An Implementation of the Critical Path Method
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(
     person("Rubens Jose", "Rosa", role=c("aut", "cre"), email = "rubens@rubensjoserosa.com"),
     person("Marcos", "dos Santos", role="aut", email="marcosdossantos@ime.eb.br"),
@@ -45,6 +45,6 @@ Collate: 'Schedule.R' 'utils-pipe.R' 'criticalpath.R'
         'sch_topological_indicators.R'
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2022-01-10 12:03:45 UTC; Rubens Rosa
+Packaged: 2022-03-13 21:54:06 UTC; Rubens Rosa
 Repository: CRAN
-Date/Publication: 2022-01-10 12:42:57 UTC
+Date/Publication: 2022-03-13 22:40:10 UTC
